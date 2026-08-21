@@ -31,8 +31,6 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   const { pathname } = request.nextUrl
-
-  // Public routes (auth pages)
   const isAuthPage = pathname === '/login' || pathname === '/signup'
 
   // Redirect unauthenticated users to /login
@@ -42,29 +40,16 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Redirect authenticated users away from auth pages
-  if (user && isAuthPage) {
-    // Get role from profiles table
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    const url = request.nextUrl.clone()
-    url.pathname = profile?.role === 'admin' ? '/admin' : '/student'
-    return NextResponse.redirect(url)
-  }
-
-  // Role-based route guards for authenticated users
+  // For authenticated users: read role from user_metadata (set at signup)
+  // instead of querying the profiles table — saves a DB round-trip per request.
   if (user) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
+    const role = (user.user_metadata?.role as string) ?? 'student'
 
-    const role = profile?.role
+    if (isAuthPage) {
+      const url = request.nextUrl.clone()
+      url.pathname = role === 'admin' ? '/admin' : '/student'
+      return NextResponse.redirect(url)
+    }
 
     if (pathname.startsWith('/admin') && role !== 'admin') {
       const url = request.nextUrl.clone()

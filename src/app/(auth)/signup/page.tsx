@@ -6,12 +6,16 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import type { Role } from '@/types/database'
 
+const LEVELS = ['100', '200', '300', '400']
+
 export default function SignupPage() {
   const router = useRouter()
   const supabase = createClient()
 
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
+  const [indexNumber, setIndexNumber] = useState('')
+  const [level, setLevel] = useState(LEVELS[0])
   const [password, setPassword] = useState('')
   const [role, setRole] = useState<Role>('student')
   const [loading, setLoading] = useState(false)
@@ -29,24 +33,46 @@ export default function SignupPage() {
       return
     }
 
-    const { error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-          role,
-        },
-      },
-    })
-
-    if (signUpError) {
-      setError(signUpError.message)
+    if (role === 'student' && !indexNumber.trim()) {
+      setError('Index number is required.')
       setLoading(false)
       return
     }
 
-    // Redirect to appropriate dashboard
+    const signupEmail = role === 'student'
+      ? `${indexNumber.trim().toLowerCase()}@academichub.internal`
+      : email
+
+    const metadata: Record<string, string> = {
+      full_name: fullName,
+      role,
+    }
+
+    if (role === 'student') {
+      metadata.index_number = indexNumber.trim()
+      metadata.level = level
+    }
+
+    const { error: signUpError } = await supabase.auth.signUp({
+      email: signupEmail,
+      password,
+      options: {
+        data: metadata,
+      },
+    })
+
+    if (signUpError) {
+      if (signUpError.message.toLowerCase().includes('already registered')) {
+        setError(role === 'student'
+          ? 'This index number is already registered.'
+          : 'This email is already registered.')
+      } else {
+        setError(signUpError.message)
+      }
+      setLoading(false)
+      return
+    }
+
     router.push(role === 'admin' ? '/admin' : '/student')
     router.refresh()
   }
@@ -96,7 +122,7 @@ export default function SignupPage() {
               {
                 value: 'student' as Role,
                 label: 'Student',
-                sublabel: 'Enroll & learn',
+                sublabel: 'Access courses & submit work',
                 icon: (
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
@@ -135,6 +161,7 @@ export default function SignupPage() {
           </div>
         </div>
 
+        {/* Full Name */}
         <div>
           <label
             htmlFor="signup-name"
@@ -154,25 +181,73 @@ export default function SignupPage() {
           />
         </div>
 
-        <div>
-          <label
-            htmlFor="signup-email"
-            style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#94A3B8', marginBottom: '6px' }}
-          >
-            Email address
-          </label>
-          <input
-            id="signup-email"
-            type="email"
-            className="form-input"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            autoComplete="email"
-          />
-        </div>
+        {/* Conditional: Email (admin) or Index Number + Level (student) */}
+        {role === 'admin' ? (
+          <div>
+            <label
+              htmlFor="signup-email"
+              style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#94A3B8', marginBottom: '6px' }}
+            >
+              Email address
+            </label>
+            <input
+              id="signup-email"
+              type="email"
+              className="form-input"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+            />
+          </div>
+        ) : (
+          <>
+            <div>
+              <label
+                htmlFor="signup-index"
+                style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#94A3B8', marginBottom: '6px' }}
+              >
+                Index Number
+              </label>
+              <input
+                id="signup-index"
+                type="text"
+                className="form-input"
+                placeholder="e.g. PS/CSC/22/0001"
+                value={indexNumber}
+                onChange={(e) => setIndexNumber(e.target.value)}
+                required
+                autoComplete="username"
+                style={{ textTransform: 'uppercase', letterSpacing: '0.03em' }}
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="signup-level"
+                style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#94A3B8', marginBottom: '6px' }}
+              >
+                Level
+              </label>
+              <select
+                id="signup-level"
+                className="form-input"
+                value={level}
+                onChange={(e) => setLevel(e.target.value)}
+                required
+                style={{ cursor: 'pointer' }}
+              >
+                {LEVELS.map((l) => (
+                  <option key={l} value={l} style={{ background: '#0A0F1E' }}>
+                    Level {l}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </>
+        )}
 
+        {/* Password */}
         <div>
           <label
             htmlFor="signup-password"

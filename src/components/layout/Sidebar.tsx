@@ -32,6 +32,15 @@ function CoursesIcon() {
   )
 }
 
+function SettingsIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+    </svg>
+  )
+}
+
 interface SidebarProps {
   role: Role
 }
@@ -52,6 +61,14 @@ export function Sidebar({ role }: SidebarProps) {
       icon: <CoursesIcon />,
     },
   ]
+
+  // Settings lives outside the role-based tree and is shown as its own tab
+  // on mobile (where the sidebar is hidden) so it stays reachable (item 7).
+  const settingsItem: NavItem = {
+    href: '/settings',
+    label: 'Settings',
+    icon: <SettingsIcon />,
+  }
 
   return (
     <>
@@ -110,7 +127,7 @@ export function Sidebar({ role }: SidebarProps) {
           <div style={{ fontSize: '11px', fontWeight: '600', color: '#334155', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0 8px 8px' }} className="sidebar-label">
             Navigation
           </div>
-          {navItems.map((item) => {
+          {[...navItems, settingsItem].map((item) => {
             const isActive = pathname === item.href || (item.href !== basePath && pathname.startsWith(item.href))
             return (
               <Link
@@ -169,15 +186,9 @@ export function Sidebar({ role }: SidebarProps) {
           })}
         </nav>
 
-        {/* Footer */}
-        <div style={{ padding: '12px 20px 16px', borderTop: '1px solid #1E293B' }}>
-          <div className="sidebar-label" style={{ fontSize: '11px', color: '#334155', textAlign: 'center' }}>
-            Phase 1 — Foundation
-          </div>
-        </div>
       </aside>
 
-      {/* Mobile bottom tab bar (placeholder) */}
+      {/* Mobile bottom tab bar (item 1) */}
       <nav
         id="mobile-tab-bar"
         style={{
@@ -191,27 +202,37 @@ export function Sidebar({ role }: SidebarProps) {
           WebkitBackdropFilter: 'blur(20px)',
           display: 'none',
           zIndex: 50,
-          padding: '8px 0',
+          // Pad above the iOS home indicator so tabs stay tappable (item 2).
+          padding: '6px 0 calc(6px + env(safe-area-inset-bottom))',
         }}
         className="mobile-tab-bar"
       >
-        {navItems.map((item) => {
-          const isActive = pathname === item.href
+        {[...navItems, settingsItem].map((item) => {
+          // Match the active tab the same way the desktop nav does, so a
+          // nested route (e.g. /student/courses/[id]) keeps Courses lit.
+          const isActive =
+            pathname === item.href ||
+            (item.href !== basePath && pathname.startsWith(item.href))
           return (
             <Link
               key={item.href}
               href={item.href}
+              aria-current={isActive ? 'page' : undefined}
               style={{
                 flex: 1,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
+                justifyContent: 'center',
                 gap: '4px',
+                // 44px minimum tap target (item 4).
+                minHeight: '44px',
                 padding: '4px 8px',
                 textDecoration: 'none',
-                color: isActive ? '#818CF8' : '#475569',
+                color: isActive ? '#818CF8' : '#64748B',
                 fontSize: '11px',
                 fontWeight: isActive ? '600' : '400',
+                transition: 'color 150ms ease',
               }}
             >
               {item.icon}

@@ -1,11 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 /* ============================================================
    Academic Hub — Design System
    Tailwind v4 CSS-first configuration
    ============================================================ */
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 @theme inline {
   /* ── Colors ── */
@@ -58,6 +57,48 @@ body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Prevent iOS rubber-band overscroll bounce (item 5) */
+  overscroll-behavior: none;
+}
+
+/* ── Mobile/PWA chrome: disable text selection on interactive UI (item 9) ──
+   Buttons, tabs, nav items and their labels should not be selectable, so
+   long-presses feel native rather than selecting text. Course content
+   (materials, assignment instructions, grades) keeps selection via
+   .selectable-content below. */
+button,
+a,
+[role='button'],
+[role='tab'],
+.mobile-tab-bar,
+.mobile-tab-bar *,
+#sidebar-desktop,
+#sidebar-desktop *,
+#topbar,
+#topbar *,
+.badge-admin,
+.badge-student {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Re-enable selection for readable course content (item 9). Apply this
+   class to material bodies, assignment instructions, grade/feedback text. */
+.selectable-content,
+.selectable-content * {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  user-select: text;
+}
+
+/* ── Safe-area insets for notches / home indicator (item 2) ── */
+.safe-area-inset {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 /* ── Custom Scrollbar ── */
@@ -105,6 +146,8 @@ body {
   justify-content: center;
   gap: 8px;
   padding: 10px 20px;
+  /* 44px minimum tap target (WCAG 2.5.5 / Apple HIG) */
+  min-height: 44px;
   background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%);
   color: #FFFFFF;
   font-weight: 600;
@@ -138,6 +181,7 @@ body {
   justify-content: center;
   gap: 8px;
   padding: 10px 20px;
+  min-height: 44px;
   background: transparent;
   color: #94A3B8;
   font-weight: 500;
@@ -166,6 +210,7 @@ body {
   justify-content: center;
   gap: 8px;
   padding: 8px 16px;
+  min-height: 44px;
   background: rgba(239, 68, 68, 0.1);
   color: #EF4444;
   font-weight: 500;
@@ -259,4 +304,37 @@ body {
 }
 .stat-gradient-slate {
   background: linear-gradient(135deg, rgba(100, 116, 139, 0.2) 0%, rgba(148, 163, 184, 0.05) 100%);
+}
+
+/* ============================================================
+   Mobile — 375px (iPhone SE) responsive fixes
+   ============================================================ */
+@media (max-width: 480px) {
+  /* Course/card grids: drop min-width so cards don't overflow on narrow screens */
+  [style*="minmax(280px"],
+  [style*="minmax(220px"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Page-level headers: let the title wrap and stack above action buttons */
+  .mobile-stack-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+
+  /* Course detail header action row: wrap Edit + Delete buttons */
+  .course-action-row {
+    flex-wrap: wrap !important;
+  }
+
+  /* Tab bar text: slightly smaller on narrow screens */
+  .tab-bar-label {
+    font-size: 12px !important;
+  }
+
+  /* Form inputs: full width on mobile */
+  .form-input {
+    font-size: 16px; /* prevents iOS zoom on focus */
+  }
 }

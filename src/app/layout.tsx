@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 
@@ -18,6 +18,16 @@ export const metadata: Metadata = {
     description: 'Professional course management for educators and students.',
     type: 'website',
   },
+}
+
+// viewportFit: 'cover' lets content extend under notches/home indicator so
+// env(safe-area-inset-*) padding takes effect (item 2). Dark theme color
+// matches the app background.
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#0A0F1E',
 }
 
 export default function RootLayout({

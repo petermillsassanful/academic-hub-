@@ -1,47 +1,104 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
+type LoginMode = 'lecturer' | 'student'
+
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
 
+  const [mode, setMode] = useState<LoginMode>('student')
   const [email, setEmail] = useState('')
+  const [indexNumber, setIndexNumber] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(
+    searchParams.get('error') === 'confirmation_failed'
+      ? 'Confirmation link is invalid or expired. Please request a new one below.'
+      : null
+  )
   const [showPassword, setShowPassword] = useState(false)
+  const [emailNotConfirmed, setEmailNotConfirmed] = useState(false)
+  const [resendLoading, setResendLoading] = useState(false)
+  const [resendSuccess, setResendSuccess] = useState(false)
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     setError(null)
+    setEmailNotConfirmed(false)
+    setResendSuccess(false)
+
+    const loginEmail = mode === 'student'
+      ? `${indexNumber.trim().toLowerCase()}@academichub.internal`
+      : email
 
     const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
+      email: loginEmail,
       password,
     })
 
     if (signInError) {
-      setError(signInError.message)
+      if (
+        signInError.message.toLowerCase().includes('email not confirmed') ||
+        signInError.message.toLowerCase().includes('email_not_confirmed')
+      ) {
+        setEmailNotConfirmed(true)
+        setError('Your email address hasn\'t been confirmed yet.')
+      } else if (signInError.message.toLowerCase().includes('invalid login credentials')) {
+        setError(mode === 'student'
+          ? 'Invalid index number or password.'
+          : 'Invalid email or password.')
+      } else {
+        setError(signInError.message)
+      }
       setLoading(false)
       return
     }
 
-    // Get profile to redirect to correct dashboard
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
       const { data: profile } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', user.id)
-        .single()
+        .single<{ role: string }>()
 
       router.push(profile?.role === 'admin' ? '/admin' : '/student')
       router.refresh()
+    }
+  }
+
+  async function handleResendConfirmation() {
+    if (!email) {
+      setError('Please enter your email address above first.')
+      return
+    }
+
+    setResendLoading(true)
+    setResendSuccess(false)
+
+    const { error: resendError } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
+
+    setResendLoading(false)
+
+    if (resendError) {
+      setError(resendError.message)
+    } else {
+      setResendSuccess(true)
+      setEmailNotConfirmed(false)
+      setError(null)
     }
   }
 
@@ -57,6 +114,8 @@ export default function LoginPage() {
           from { opacity: 0; transform: translateY(16px); }
           to   { opacity: 1; transform: translateY(0); }
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        select option { background: #0A0F1E; color: #FFFFFF; }
       `}</style>
 
       <div className="mb-6">
@@ -69,25 +128,98 @@ export default function LoginPage() {
       </div>
 
       <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+        {/* Mode Toggle */}
         <div>
-          <label
-            htmlFor="login-email"
-            style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#94A3B8', marginBottom: '6px' }}
-          >
-            Email address
+          <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#94A3B8', marginBottom: '8px' }}>
+            Sign in as…
           </label>
-          <input
-            id="login-email"
-            type="email"
-            className="form-input"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            autoComplete="email"
-          />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            {([
+              { value: 'lecturer' as LoginMode, label: 'Lecturer', icon: (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+              )},
+              { value: 'student' as LoginMode, label: 'Student', icon: (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                </svg>
+              )},
+            ]).map(({ value, label, icon }) => {
+              const selected = mode === value
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => { setMode(value); setError(null); setEmailNotConfirmed(false); setResendSuccess(false) }}
+                  style={{
+                    padding: '10px 12px',
+                    borderRadius: '10px',
+                    border: selected ? '2px solid #4F46E5' : '1px solid #334155',
+                    background: selected ? 'rgba(79,70,229,0.12)' : 'rgba(30,41,59,0.5)',
+                    cursor: 'pointer',
+                    transition: 'all 150ms ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  <span style={{ color: selected ? '#818CF8' : '#64748B' }}>{icon}</span>
+                  <span style={{ fontSize: '13px', fontWeight: '600', color: selected ? '#FFFFFF' : '#94A3B8' }}>
+                    {label}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
         </div>
 
+        {/* Conditional: Email or Index Number */}
+        {mode === 'lecturer' ? (
+          <div>
+            <label
+              htmlFor="login-email"
+              style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#94A3B8', marginBottom: '6px' }}
+            >
+              Email address
+            </label>
+            <input
+              id="login-email"
+              type="email"
+              className="form-input"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+            />
+          </div>
+        ) : (
+          <div>
+            <label
+              htmlFor="login-index"
+              style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#94A3B8', marginBottom: '6px' }}
+            >
+              Index Number
+            </label>
+            <input
+              id="login-index"
+              type="text"
+              className="form-input"
+              placeholder="e.g. PS/CSC/22/0001"
+              value={indexNumber}
+              onChange={(e) => setIndexNumber(e.target.value)}
+              required
+              autoComplete="username"
+              style={{ textTransform: 'uppercase', letterSpacing: '0.03em' }}
+            />
+          </div>
+        )}
+
+        {/* Password */}
         <div>
           <label
             htmlFor="login-password"
@@ -133,6 +265,7 @@ export default function LoginPage() {
           </div>
         </div>
 
+        {/* Error message */}
         {error && (
           <div style={{
             padding: '12px 14px',
@@ -143,6 +276,94 @@ export default function LoginPage() {
             fontSize: '13px',
           }}>
             {error}
+          </div>
+        )}
+
+        {/* Resend confirmation email panel — only for lecturer mode */}
+        {emailNotConfirmed && mode === 'lecturer' && (
+          <div style={{
+            padding: '14px 16px',
+            background: 'rgba(245,158,11,0.08)',
+            border: '1px solid rgba(245,158,11,0.25)',
+            borderRadius: '10px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+          }}>
+            <p style={{ fontSize: '13px', color: '#FCD34D', lineHeight: 1.5, margin: 0 }}>
+              Check your inbox for a confirmation email, or get a new one:
+            </p>
+            <button
+              type="button"
+              id="resend-confirmation-btn"
+              onClick={handleResendConfirmation}
+              disabled={resendLoading}
+              style={{
+                padding: '9px 16px',
+                background: 'rgba(245,158,11,0.15)',
+                border: '1px solid rgba(245,158,11,0.4)',
+                borderRadius: '8px',
+                color: '#FCD34D',
+                fontSize: '13px',
+                fontWeight: '600',
+                cursor: resendLoading ? 'not-allowed' : 'pointer',
+                fontFamily: 'inherit',
+                transition: 'all 150ms ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '7px',
+              }}
+              onMouseEnter={(e) => {
+                if (!resendLoading) {
+                  e.currentTarget.style.background = 'rgba(245,158,11,0.25)'
+                  e.currentTarget.style.color = '#FFFFFF'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!resendLoading) {
+                  e.currentTarget.style.background = 'rgba(245,158,11,0.15)'
+                  e.currentTarget.style.color = '#FCD34D'
+                }
+              }}
+            >
+              {resendLoading ? (
+                <>
+                  <svg style={{ animation: 'spin 1s linear infinite' }} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                  </svg>
+                  Sending…
+                </>
+              ) : (
+                <>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                  </svg>
+                  Resend confirmation email
+                </>
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* Resend success */}
+        {resendSuccess && (
+          <div style={{
+            padding: '12px 14px',
+            background: 'rgba(16,185,129,0.1)',
+            border: '1px solid rgba(16,185,129,0.3)',
+            borderRadius: '10px',
+            color: '#6EE7B7',
+            fontSize: '13px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+            Confirmation email sent! Check your inbox and click the link to activate your account.
           </div>
         )}
 
@@ -164,8 +385,6 @@ export default function LoginPage() {
             'Sign In'
           )}
         </button>
-
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </form>
 
       <div style={{

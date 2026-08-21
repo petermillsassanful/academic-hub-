@@ -18,7 +18,8 @@ export function AppLayout({ profile, children }: AppLayoutProps) {
         id="main-content"
         style={{
           marginLeft: '240px',
-          marginTop: '64px',
+          // TopBar now grows by the top inset, so clear both (item 2).
+          marginTop: 'calc(64px + env(safe-area-inset-top))',
           minHeight: 'calc(100vh - 64px)',
           padding: '32px',
           transition: 'margin-left 200ms ease',
@@ -32,7 +33,12 @@ export function AppLayout({ profile, children }: AppLayoutProps) {
         @media (max-width: 767px) {
           .main-content {
             margin-left: 0 !important;
-            padding: 20px 16px 80px !important;
+            /* Left/right honor side insets (landscape notch); bottom clears
+               the tab bar (~64px) plus the home-indicator inset (item 2). */
+            padding-top: 20px !important;
+            padding-left: max(16px, env(safe-area-inset-left)) !important;
+            padding-right: max(16px, env(safe-area-inset-right)) !important;
+            padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
           }
         }
         @media (min-width: 768px) and (max-width: 1023px) {

@@ -24,8 +24,7 @@ export function TopBar({ profile }: TopBarProps) {
 
   async function handleLogout() {
     await supabase.auth.signOut()
-    router.push('/login')
-    router.refresh()
+    router.replace('/login')
   }
 
   const initials = getInitials(profile.full_name)
@@ -39,7 +38,10 @@ export function TopBar({ profile }: TopBarProps) {
         top: 0,
         right: 0,
         left: '240px',
-        height: '64px',
+        // Grow the bar under the notch and pad its content down so nothing
+        // is hidden behind it (item 2). On devices with no inset this is 0.
+        height: 'calc(64px + env(safe-area-inset-top))',
+        paddingTop: 'env(safe-area-inset-top)',
         background: 'rgba(10,15,30,0.85)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
@@ -47,7 +49,7 @@ export function TopBar({ profile }: TopBarProps) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 24px',
+        padding: 'env(safe-area-inset-top) max(24px, env(safe-area-inset-right)) 0 max(24px, env(safe-area-inset-left))',
         zIndex: 30,
       }}
       className="topbar"

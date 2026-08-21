@@ -1,31 +1,19 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { getUser, getProfile } from '@/lib/auth'
 import { AppLayout } from '@/components/layout/AppLayout'
+
+export const dynamic = 'force-dynamic'
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const supabase = await createClient()
+  const user = await getUser()
+  if (!user) redirect('/login')
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect('/login')
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile) {
-    redirect('/login')
-  }
+  const profile = await getProfile()
+  if (!profile) redirect('/login')
 
   return <AppLayout profile={profile}>{children}</AppLayout>
 }
