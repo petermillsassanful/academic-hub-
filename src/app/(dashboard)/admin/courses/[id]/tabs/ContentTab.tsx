@@ -32,10 +32,8 @@ function MaterialRow({ material, onDelete }: { material: CourseMaterial; onDelet
 
   async function handleDelete() {
     setDeleting(true)
-    // Delete storage object
     const path = material.file_url.split('/course-materials/')[1]
     if (path) await supabase.storage.from('course-materials').remove([path])
-    // Delete DB record
     await supabase.from('course_materials').delete().eq('id', material.id)
     router.refresh()
     onDelete()
@@ -44,36 +42,36 @@ function MaterialRow({ material, onDelete }: { material: CourseMaterial; onDelet
   return (
     <div style={{
       display: 'flex',
-      alignItems: 'flex-start',
+      alignItems: 'center',
       gap: '14px',
-      padding: '14px 16px',
-      background: 'rgba(255,255,255,0.02)',
-      border: '1px solid #1E293B',
-      borderRadius: '10px',
-      transition: 'border-color 150ms',
+      padding: '14px 18px',
+      background: '#FFFFFF',
+      border: '1px solid #E2E8F0',
+      borderRadius: '8px',
+      transition: 'all 150ms ease',
     }}
-    onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#334155' }}
-    onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#1E293B' }}
+    onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)' }}
+    onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.boxShadow = 'none' }}
     >
-      <FileIcon fileType={material.file_type} size={18} />
+      <FileIcon fileType={material.file_type} size={22} />
 
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFF', margin: 0, marginBottom: '3px' }}>
+        <p style={{ fontSize: '14px', fontWeight: '600', color: '#0F172A', margin: 0, marginBottom: '2px' }}>
           {material.title}
         </p>
         {material.description && (
-          <p style={{ fontSize: '13px', color: '#64748B', margin: 0, marginBottom: '4px', lineHeight: 1.5 }}>
+          <p style={{ fontSize: '13px', color: '#64748B', margin: 0, marginBottom: '4px', lineHeight: 1.4 }}>
             {material.description}
           </p>
         )}
-        <p style={{ fontSize: '12px', color: '#334155', margin: 0 }}>
+        <p style={{ fontSize: '11px', color: '#94A3B8', margin: 0 }}>
           {material.file_type.toUpperCase()} · {formatBytes(material.file_size)} ·{' '}
           {new Date(material.uploaded_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
         </p>
       </div>
 
       {/* Actions */}
-      <div style={{ display: 'flex', gap: '6px', flexShrink: 0, alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: '8px', flexShrink: 0, alignItems: 'center' }}>
         {!confirming ? (
           <>
             {/* Download */}
@@ -87,19 +85,19 @@ function MaterialRow({ material, onDelete }: { material: CourseMaterial; onDelet
                 alignItems: 'center',
                 gap: '5px',
                 padding: '6px 12px',
-                background: 'rgba(79,70,229,0.08)',
-                border: '1px solid rgba(79,70,229,0.2)',
-                borderRadius: '7px',
-                color: '#818CF8',
+                background: '#EFF6FF',
+                border: '1px solid #BFDBFE',
+                borderRadius: '6px',
+                color: '#1D4ED8',
                 fontSize: '12px',
-                fontWeight: '500',
+                fontWeight: '600',
                 textDecoration: 'none',
-                transition: 'all 150ms',
+                transition: 'all 150ms ease',
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(79,70,229,0.15)' }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(79,70,229,0.08)' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = '#DBEAFE' }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = '#EFF6FF' }}
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                 <polyline points="7 10 12 15 17 10"/>
                 <line x1="12" y1="15" x2="12" y2="3"/>
@@ -111,17 +109,18 @@ function MaterialRow({ material, onDelete }: { material: CourseMaterial; onDelet
               onClick={() => setConfirming(true)}
               style={{
                 padding: '6px 10px',
-                background: 'rgba(239,68,68,0.06)',
-                border: '1px solid rgba(239,68,68,0.2)',
-                borderRadius: '7px',
-                color: '#FCA5A5',
+                background: '#FEF2F2',
+                border: '1px solid #FECACA',
+                borderRadius: '6px',
+                color: '#DC2626',
                 fontSize: '12px',
                 cursor: 'pointer',
                 fontFamily: 'inherit',
-                transition: 'all 150ms',
+                transition: 'all 150ms ease',
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(239,68,68,0.15)' }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(239,68,68,0.06)' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = '#FEE2E2' }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = '#FEF2F2' }}
+              title="Delete material"
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polyline points="3 6 5 6 21 6"/>
@@ -132,13 +131,13 @@ function MaterialRow({ material, onDelete }: { material: CourseMaterial; onDelet
         ) : (
           /* Confirm delete */
           <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#FCA5A5' }}>Delete?</span>
+            <span style={{ fontSize: '12px', color: '#DC2626', fontWeight: '600' }}>Delete?</span>
             <button
               onClick={handleDelete}
               disabled={deleting}
               style={{
                 padding: '5px 10px',
-                background: '#EF4444',
+                background: '#DC2626',
                 border: 'none',
                 borderRadius: '6px',
                 color: '#FFFFFF',
@@ -154,8 +153,8 @@ function MaterialRow({ material, onDelete }: { material: CourseMaterial; onDelet
               onClick={() => setConfirming(false)}
               style={{
                 padding: '5px 10px',
-                background: 'transparent',
-                border: '1px solid #334155',
+                background: '#FFFFFF',
+                border: '1px solid #CBD5E1',
                 borderRadius: '6px',
                 color: '#64748B',
                 fontSize: '12px',
@@ -179,10 +178,10 @@ export function ContentTab({ courseId, materials }: ContentTabProps) {
   return (
     <div style={{ animation: 'tabFadeIn 200ms ease' }}>
       {/* Upload zone */}
-      <div style={{ marginBottom: '28px' }}>
+      <div style={{ marginBottom: '24px' }}>
         <UploadZone
-          accept=".pdf,.pptx,.ppt,.docx,.doc,.txt,.md"
-          label="PDF, PPTX, DOCX, TXT — max 50 MB"
+          accept=".pdf,.pptx,.ppt,.docx,.doc,.txt,.md,.zip"
+          label="PDF, PPTX, DOCX, ZIP, TXT — max 50 MB"
           onFileSelected={setPendingFile}
           disabled={!!pendingFile}
         />
@@ -199,45 +198,62 @@ export function ContentTab({ courseId, materials }: ContentTabProps) {
       {/* Materials list or empty state */}
       {materials.length === 0 ? (
         <div style={{
-          padding: '50px 30px',
+          padding: '48px 30px',
           textAlign: 'center',
-          background: 'rgba(255,255,255,0.02)',
-          border: '1px dashed #1E293B',
+          background: '#FFFFFF',
+          border: '1px solid #E2E8F0',
           borderRadius: '12px',
         }}>
           <div style={{
-            width: '48px', height: '48px', margin: '0 auto 14px',
-            background: 'rgba(79,70,229,0.08)',
+            width: '48px', height: '48px', margin: '0 auto 12px',
+            background: '#EFF6FF',
             borderRadius: '12px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" strokeWidth="1.5">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
               <polyline points="14 2 14 8 20 8"/>
             </svg>
           </div>
-          <p style={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFF', marginBottom: '6px' }}>No materials uploaded yet</p>
-          <p style={{ fontSize: '13px', color: '#475569' }}>Use the upload zone above to add your first course material.</p>
+          <p style={{ fontSize: '15px', fontWeight: '700', color: '#0F172A', marginBottom: '4px' }}>No materials uploaded yet</p>
+          <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>Use the upload zone above to add your lecture notes, slides, and code files.</p>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {[...grouped.entries()].map(([week, items]) => (
-            <div key={week}>
+            <div
+              key={week}
+              style={{
+                background: '#FFFFFF',
+                border: '1px solid #E2E8F0',
+                borderRadius: '12px',
+                padding: '18px 20px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+              }}
+            >
+              {/* Module / Week Header */}
               <div style={{
-                display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px',
+                display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px',
+                paddingBottom: '12px', borderBottom: '1px solid #F1F5F9',
               }}>
                 <span style={{
                   padding: '3px 10px',
-                  background: 'rgba(79,70,229,0.1)',
-                  border: '1px solid rgba(79,70,229,0.2)',
-                  borderRadius: '99px',
-                  fontSize: '12px', fontWeight: '700', color: '#818CF8',
+                  background: '#EFF6FF',
+                  border: '1px solid #BFDBFE',
+                  borderRadius: '6px',
+                  fontSize: '12px', fontWeight: '700', color: '#1D4ED8',
                 }}>
                   Week {week}
                 </span>
-                <div style={{ flex: 1, height: '1px', background: '#1E293B' }} />
-                <span style={{ fontSize: '11px', color: '#475569' }}>{items.length} file{items.length !== 1 ? 's' : ''}</span>
+                <span style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A' }}>
+                  Course Materials & Lecture Notes
+                </span>
+                <span style={{ marginLeft: 'auto', fontSize: '12px', color: '#64748B' }}>
+                  {items.length} file{items.length !== 1 ? 's' : ''}
+                </span>
               </div>
+
+              {/* Items List */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {items.map((m) => (
                   <MaterialRow key={m.id} material={m} onDelete={() => {}} />

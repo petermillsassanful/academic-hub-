@@ -2,23 +2,25 @@
 @import "tailwindcss";
 
 /* ============================================================
-   Academic Hub — Design System
-   Tailwind v4 CSS-first configuration
+   Academic Hub — Modern University LMS Design System
+   Clean Light Theme with Navy Blue Header & Crisp White Cards
    ============================================================ */
 
 @theme inline {
   /* ── Colors ── */
-  --color-background: #0A0F1E;
-  --color-surface: #1E293B;
-  --color-surface-hover: #253449;
-  --color-border: #334155;
-  --color-border-subtle: #1E293B;
-  --color-accent: #4F46E5;
-  --color-accent-hover: #4338CA;
-  --color-accent-light: rgba(79, 70, 229, 0.15);
-  --color-accent-glow: rgba(79, 70, 229, 0.3);
-  --color-text: #FFFFFF;
-  --color-text-muted: #94A3B8;
+  --color-background: #F4F6F9;
+  --color-surface: #FFFFFF;
+  --color-surface-hover: #F8FAFC;
+  --color-border: #E2E8F0;
+  --color-border-subtle: #F1F5F9;
+  --color-navy: #1B2559;
+  --color-navy-dark: #111A44;
+  --color-accent: #2563EB;
+  --color-accent-hover: #1D4ED8;
+  --color-accent-light: rgba(37, 99, 235, 0.08);
+  --color-accent-glow: rgba(37, 99, 235, 0.2);
+  --color-text: #0F172A;
+  --color-text-muted: #475569;
   --color-text-subtle: #64748B;
   --color-success: #10B981;
   --color-warning: #F59E0B;
@@ -36,8 +38,8 @@
   --radius-full: 9999px;
 
   /* ── Shadows ── */
-  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
-  --shadow-glow: 0 0 40px rgba(79, 70, 229, 0.2);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+  --shadow-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 10px 20px -3px rgba(0, 0, 0, 0.05);
 }
 
 /* ── Base Styles ── */
@@ -52,20 +54,14 @@ html {
 
 body {
   min-height: 100%;
-  background-color: #0A0F1E;
-  color: #FFFFFF;
+  background-color: #F4F6F9;
+  color: #0F172A;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Prevent iOS rubber-band overscroll bounce (item 5) */
   overscroll-behavior: none;
 }
 
-/* ── Mobile/PWA chrome: disable text selection on interactive UI (item 9) ──
-   Buttons, tabs, nav items and their labels should not be selectable, so
-   long-presses feel native rather than selecting text. Course content
-   (materials, assignment instructions, grades) keeps selection via
-   .selectable-content below. */
 button,
 a,
 [role='button'],
@@ -84,8 +80,6 @@ a,
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Re-enable selection for readable course content (item 9). Apply this
-   class to material bodies, assignment instructions, grade/feedback text. */
 .selectable-content,
 .selectable-content * {
   -webkit-user-select: text;
@@ -93,7 +87,6 @@ a,
   user-select: text;
 }
 
-/* ── Safe-area insets for notches / home indicator (item 2) ── */
 .safe-area-inset {
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
@@ -107,36 +100,32 @@ a,
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0A0F1E;
+  background: #F1F5F9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #CBD5E1;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #4F46E5;
+  background: #94A3B8;
 }
 
 /* ============================================================
-   Reusable Utility Classes
+   Reusable LMS Card & Button Styles
    ============================================================ */
 
-/* ── Glassmorphism Card ── */
+/* ── Clean White LMS Card ── */
 .glass-card {
-  background: rgba(30, 41, 59, 0.6);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(51, 65, 85, 0.8);
-  border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
 .glass-card-subtle {
-  background: rgba(30, 41, 59, 0.3);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(51, 65, 85, 0.4);
-  border-radius: 12px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
 }
 
 /* ── Primary Button ── */
@@ -146,27 +135,26 @@ a,
   justify-content: center;
   gap: 8px;
   padding: 10px 20px;
-  /* 44px minimum tap target (WCAG 2.5.5 / Apple HIG) */
-  min-height: 44px;
-  background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%);
+  min-height: 42px;
+  background: #1B2559;
   color: #FFFFFF;
   font-weight: 600;
   font-size: 14px;
   border: none;
-  border-radius: 12px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: transform 150ms ease, box-shadow 150ms ease, opacity 150ms ease;
-  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.4);
+  transition: all 150ms ease;
+  box-shadow: 0 2px 8px rgba(27, 37, 89, 0.25);
   text-decoration: none;
   white-space: nowrap;
 }
 .btn-primary:hover {
-  transform: translateY(-1px) scale(1.01);
-  box-shadow: 0 6px 24px rgba(79, 70, 229, 0.55);
+  background: #111A44;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(27, 37, 89, 0.35);
 }
 .btn-primary:active {
   transform: scale(0.98);
-  opacity: 0.9;
 }
 .btn-primary:disabled {
   opacity: 0.5;
@@ -180,23 +168,23 @@ a,
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 20px;
-  min-height: 44px;
-  background: transparent;
-  color: #94A3B8;
+  padding: 10px 18px;
+  min-height: 42px;
+  background: #FFFFFF;
+  color: #475569;
   font-weight: 500;
   font-size: 14px;
-  border: 1px solid #334155;
-  border-radius: 12px;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background 150ms ease, border-color 150ms ease, color 150ms ease, transform 150ms ease;
+  transition: all 150ms ease;
   text-decoration: none;
   white-space: nowrap;
 }
 .btn-ghost:hover {
-  background: rgba(51, 65, 85, 0.5);
-  border-color: #4F46E5;
-  color: #FFFFFF;
+  background: #F8FAFC;
+  border-color: #94A3B8;
+  color: #0F172A;
   transform: translateY(-1px);
 }
 .btn-ghost:active {
@@ -210,131 +198,82 @@ a,
   justify-content: center;
   gap: 8px;
   padding: 8px 16px;
-  min-height: 44px;
-  background: rgba(239, 68, 68, 0.1);
-  color: #EF4444;
+  min-height: 38px;
+  background: rgba(239, 68, 68, 0.08);
+  color: #DC2626;
   font-weight: 500;
-  font-size: 14px;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: 10px;
+  font-size: 13px;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 8px;
   cursor: pointer;
-  transition: background 150ms ease, transform 150ms ease;
+  transition: all 150ms ease;
   text-decoration: none;
 }
 .btn-danger:hover {
-  background: rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.15);
   transform: translateY(-1px);
 }
 
 /* ── Form Input ── */
 .form-input {
   width: 100%;
-  padding: 12px 16px;
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid #334155;
-  border-radius: 12px;
-  color: #FFFFFF;
+  padding: 10px 14px;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  color: #0F172A;
   font-size: 14px;
   font-family: inherit;
   transition: border-color 150ms ease, box-shadow 150ms ease;
   outline: none;
 }
 .form-input::placeholder {
-  color: #64748B;
+  color: #94A3B8;
 }
 .form-input:focus {
-  border-color: #4F46E5;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+  border-color: #2563EB;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
-/* ── Badge ── */
+/* ── Badges ── */
 .badge-admin {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 10px;
-  background: rgba(79, 70, 229, 0.15);
-  color: #818CF8;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 99px;
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  border: 1px solid rgba(79, 70, 229, 0.3);
-  border-radius: 999px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #D97706;
 }
 
 .badge-student {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 10px;
-  background: rgba(16, 185, 129, 0.1);
-  color: #34D399;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 99px;
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  border: 1px solid rgba(16, 185, 129, 0.25);
-  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #059669;
 }
 
-/* ── Gradient Text ── */
-.gradient-text {
-  background: linear-gradient(135deg, #FFFFFF 0%, #818CF8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* ── Accent Glow Border ── */
-.glow-border {
-  border: 1px solid rgba(79, 70, 229, 0.5);
-  box-shadow: 0 0 20px rgba(79, 70, 229, 0.1), inset 0 0 20px rgba(79, 70, 229, 0.05);
-}
-
-/* ── Stat Card Gradient ── */
-.stat-gradient-indigo {
-  background: linear-gradient(135deg, rgba(79, 70, 229, 0.2) 0%, rgba(99, 102, 241, 0.05) 100%);
-}
-.stat-gradient-emerald {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(52, 211, 153, 0.05) 100%);
-}
-.stat-gradient-amber {
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(251, 191, 36, 0.05) 100%);
-}
-.stat-gradient-slate {
-  background: linear-gradient(135deg, rgba(100, 116, 139, 0.2) 0%, rgba(148, 163, 184, 0.05) 100%);
-}
-
-/* ============================================================
-   Mobile — 375px (iPhone SE) responsive fixes
-   ============================================================ */
-@media (max-width: 480px) {
-  /* Course/card grids: drop min-width so cards don't overflow on narrow screens */
-  [style*="minmax(280px"],
-  [style*="minmax(220px"] {
-    grid-template-columns: 1fr !important;
+/* ── Tab Fade In Animation ── */
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
   }
-
-  /* Page-level headers: let the title wrap and stack above action buttons */
-  .mobile-stack-header {
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 12px !important;
-  }
-
-  /* Course detail header action row: wrap Edit + Delete buttons */
-  .course-action-row {
-    flex-wrap: wrap !important;
-  }
-
-  /* Tab bar text: slightly smaller on narrow screens */
-  .tab-bar-label {
-    font-size: 12px !important;
-  }
-
-  /* Form inputs: full width on mobile */
-  .form-input {
-    font-size: 16px; /* prevents iOS zoom on focus */
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

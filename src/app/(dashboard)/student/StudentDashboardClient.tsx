@@ -23,40 +23,40 @@ export function StudentDashboardClient({
 }: StudentDashboardClientProps) {
   return (
     <PullToRefresh>
-    <div style={{ maxWidth: '900px' }}>
+    <div style={{ maxWidth: '960px' }}>
       {/* Greeting header */}
-      <div style={{ marginBottom: '32px' }}>
+      <div style={{ marginBottom: '28px' }}>
         <h1 style={{
-          fontSize: '28px',
+          fontSize: '26px',
           fontWeight: '800',
-          color: '#FFFFFF',
+          color: '#0F172A',
           letterSpacing: '-0.02em',
           marginBottom: '6px',
         }}>
           Welcome back, {firstName}
         </h1>
         <p style={{ fontSize: '14px', color: '#64748B' }}>
-          {studentLevel ? `Level ${studentLevel}` : ''}{indexNumber ? ` — ${indexNumber}` : ''} — Here&apos;s your academic overview
+          {studentLevel ? `Level ${studentLevel}` : ''}{indexNumber ? ` — ${indexNumber}` : ''} — Here&apos;s your academic portal overview
         </p>
       </div>
 
       {/* Courses */}
       <div style={{ marginBottom: '32px' }}>
-        <h2 style={{ fontSize: '16px', fontWeight: '700', color: '#FFFFFF', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#818CF8" strokeWidth="1.75">
+        <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#0F172A', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
             <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
             <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
           </svg>
-          Your Courses
+          Enrolled Courses
         </h2>
         {courses.length === 0 ? (
-          <div className="glass-card" style={{ padding: '36px 28px', textAlign: 'center' }}>
-            <p style={{ fontSize: '14px', color: '#64748B' }}>
+          <div className="glass-card" style={{ padding: '36px 28px', textAlign: 'center', background: '#FFFFFF' }}>
+            <p style={{ fontSize: '14px', color: '#64748B', margin: 0 }}>
               No courses available for your level yet. Courses will appear here once your lecturers create them.
             </p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '14px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
             {courses.map((course) => (
               <Link
                 key={course.id}
@@ -69,38 +69,41 @@ export function StudentDashboardClient({
                     padding: '20px 22px',
                     transition: 'all 150ms ease',
                     cursor: 'pointer',
+                    background: '#FFFFFF',
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(79,70,229,0.4)'
+                    e.currentTarget.style.borderColor = '#CBD5E1'
                     e.currentTarget.style.transform = 'translateY(-2px)'
+                    e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.08)'
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = ''
+                    e.currentTarget.style.borderColor = '#E2E8F0'
                     e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.04)'
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
                     <span style={{
                       padding: '3px 8px',
-                      background: 'rgba(79,70,229,0.12)',
-                      border: '1px solid rgba(79,70,229,0.3)',
+                      background: '#EFF6FF',
+                      border: '1px solid #BFDBFE',
                       borderRadius: '6px',
                       fontSize: '11px',
                       fontWeight: '700',
-                      color: '#818CF8',
+                      color: '#1D4ED8',
                       letterSpacing: '0.06em',
                       textTransform: 'uppercase',
                     }}>
                       {course.code}
                     </span>
-                    <span style={{ fontSize: '11px', color: '#475569' }}>{course.semester}</span>
+                    <span style={{ fontSize: '12px', color: '#64748B' }}>{course.semester}</span>
                   </div>
-                  <h3 style={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFF', lineHeight: 1.4 }}>
+                  <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#0F172A', lineHeight: 1.4, margin: 0 }}>
                     {course.name}
                   </h3>
                   {course.description && (
                     <p style={{
-                      fontSize: '12px', color: '#64748B', lineHeight: 1.5, marginTop: '6px',
+                      fontSize: '13px', color: '#64748B', lineHeight: 1.5, marginTop: '8px', marginBottom: 0,
                       overflow: 'hidden', textOverflow: 'ellipsis',
                       display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
                     }}>
@@ -116,8 +119,8 @@ export function StudentDashboardClient({
 
       {/* Upcoming Deadlines */}
       <div style={{ marginBottom: '32px' }}>
-        <h2 style={{ fontSize: '16px', fontWeight: '700', color: '#FFFFFF', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FCD34D" strokeWidth="1.75">
+        <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#0F172A', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2">
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
             <line x1="16" y1="2" x2="16" y2="6"/>
             <line x1="8" y1="2" x2="8" y2="6"/>
@@ -126,11 +129,11 @@ export function StudentDashboardClient({
           Upcoming Deadlines
         </h2>
         {upcomingDeadlines.length === 0 ? (
-          <div className="glass-card" style={{ padding: '24px 28px' }}>
-            <p style={{ fontSize: '13px', color: '#64748B' }}>No upcoming deadlines.</p>
+          <div className="glass-card" style={{ padding: '24px 28px', background: '#FFFFFF' }}>
+            <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>No upcoming deadlines.</p>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {upcomingDeadlines.map((a) => {
               const deadlineDate = new Date(a.deadline)
               const now = new Date()
@@ -141,29 +144,30 @@ export function StudentDashboardClient({
                   <div
                     className="glass-card"
                     style={{
-                      padding: '14px 20px',
+                      padding: '16px 20px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
                       gap: '12px',
-                      transition: 'border-color 150ms ease',
+                      transition: 'all 150ms ease',
+                      background: '#FFFFFF',
                     }}
-                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(79,70,229,0.4)' }}
-                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = '' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)' }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)' }}
                   >
                     <div>
-                      <div style={{ fontSize: '13px', fontWeight: '600', color: '#FFFFFF' }}>{a.title}</div>
-                      <div style={{ fontSize: '11px', color: '#475569', marginTop: '2px' }}>{a.courses.code} — {a.courses.name}</div>
+                      <div style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A' }}>{a.title}</div>
+                      <div style={{ fontSize: '12px', color: '#64748B', marginTop: '2px' }}>{a.courses.code} — {a.courses.name}</div>
                     </div>
                     <span style={{
                       padding: '4px 10px',
-                      borderRadius: '7px',
+                      borderRadius: '6px',
                       fontSize: '11px',
-                      fontWeight: '600',
+                      fontWeight: '700',
                       whiteSpace: 'nowrap',
-                      background: isUrgent ? 'rgba(239,68,68,0.12)' : 'rgba(245,158,11,0.1)',
-                      color: isUrgent ? '#FCA5A5' : '#FCD34D',
-                      border: `1px solid ${isUrgent ? 'rgba(239,68,68,0.3)' : 'rgba(245,158,11,0.25)'}`,
+                      background: isUrgent ? '#FEE2E2' : '#FEF3C7',
+                      color: isUrgent ? '#DC2626' : '#D97706',
+                      border: `1px solid ${isUrgent ? '#FECACA' : '#FDE68A'}`,
                     }}>
                       {daysLeft <= 0 ? 'Due today' : `${daysLeft} day${daysLeft !== 1 ? 's' : ''} left`}
                     </span>
@@ -177,46 +181,50 @@ export function StudentDashboardClient({
 
       {/* Recent Grades */}
       <div>
-        <h2 style={{ fontSize: '16px', fontWeight: '700', color: '#FFFFFF', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34D399" strokeWidth="1.75">
+        <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#0F172A', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2">
             <circle cx="12" cy="8" r="6"/>
             <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
           </svg>
           Recent Grades
         </h2>
         {recentGrades.length === 0 ? (
-          <div className="glass-card" style={{ padding: '24px 28px' }}>
-            <p style={{ fontSize: '13px', color: '#64748B' }}>No grades yet. Once your submissions are reviewed, results will show here.</p>
+          <div className="glass-card" style={{ padding: '24px 28px', background: '#FFFFFF' }}>
+            <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>No grades yet. Once your submissions are reviewed, results will show here.</p>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {recentGrades.map((g) => {
               const pct = g.assignments.max_score > 0 ? ((g.grade ?? 0) / g.assignments.max_score) * 100 : 0
-              const color = pct >= 70 ? '#34D399' : pct >= 50 ? '#FCD34D' : '#FCA5A5'
+              const color = pct >= 70 ? '#059669' : pct >= 50 ? '#D97706' : '#DC2626'
+              const bg = pct >= 70 ? '#ECFDF5' : pct >= 50 ? '#FFFBEB' : '#FEF2F2'
+              const border = pct >= 70 ? '#A7F3D0' : pct >= 50 ? '#FDE68A' : '#FECACA'
               return (
                 <div key={g.id} className="glass-card" style={{
-                  padding: '14px 20px',
+                  padding: '16px 20px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   gap: '12px',
+                  background: '#FFFFFF',
                 }}>
                   <div>
-                    <div style={{ fontSize: '13px', fontWeight: '600', color: '#FFFFFF' }}>{g.assignments.title}</div>
-                    <div style={{ fontSize: '11px', color: '#475569', marginTop: '2px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A' }}>{g.assignments.title}</div>
+                    <div style={{ fontSize: '12px', color: '#64748B', marginTop: '2px' }}>
                       Graded {g.graded_at ? new Date(g.graded_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : ''}
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span style={{ fontSize: '15px', fontWeight: '700', color }}>
-                      {g.grade}/{g.assignments.max_score}
+                    <span style={{ fontSize: '15px', fontWeight: '800', color: '#0F172A' }}>
+                      {g.grade} / {g.assignments.max_score}
                     </span>
                     <span style={{
-                      padding: '3px 8px',
+                      padding: '4px 10px',
                       borderRadius: '6px',
-                      fontSize: '11px',
-                      fontWeight: '600',
-                      background: `${color}18`,
+                      fontSize: '12px',
+                      fontWeight: '700',
+                      background: bg,
+                      border: `1px solid ${border}`,
                       color,
                     }}>
                       {Math.round(pct)}%

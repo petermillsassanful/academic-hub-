@@ -9,7 +9,6 @@ interface SettingsClientProps {
   profile: Profile
 }
 
-// Exact copy required for App Store account-deletion compliance (item 7).
 const DELETE_WARNING =
   'This will permanently delete your account and all your data. This cannot be undone.'
 
@@ -21,17 +20,17 @@ function Row({ label, value }: { label: string; value: string }) {
         justifyContent: 'space-between',
         alignItems: 'center',
         gap: '16px',
-        padding: '12px 0',
-        borderBottom: '1px solid #1E293B',
+        padding: '14px 0',
+        borderBottom: '1px solid #F1F5F9',
       }}
     >
-      <span style={{ fontSize: '13px', color: '#64748B' }}>{label}</span>
+      <span style={{ fontSize: '13px', color: '#475569', fontWeight: 600 }}>{label}</span>
       <span
         className="selectable-content"
         style={{
           fontSize: '14px',
-          color: '#E2E8F0',
-          fontWeight: 500,
+          color: '#0F172A',
+          fontWeight: 600,
           textAlign: 'right',
           wordBreak: 'break-word',
         }}
@@ -51,7 +50,6 @@ export function SettingsClient({ profile }: SettingsClientProps) {
     setError(null)
     startTransition(async () => {
       const result = await deleteAccount()
-      // A successful delete redirects (throws), so we only get here on failure.
       if (result?.error) {
         setError(result.error)
       }
@@ -63,24 +61,34 @@ export function SettingsClient({ profile }: SettingsClientProps) {
   return (
     <div style={{ maxWidth: '640px' }}>
       {/* Account details */}
-      <section className="glass-card" style={{ padding: '24px', marginBottom: '20px' }}>
+      <section
+        className="glass-card"
+        style={{
+          padding: '24px',
+          marginBottom: '20px',
+          background: '#FFFFFF',
+          border: '1px solid #E2E8F0',
+          borderRadius: '12px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+        }}
+      >
         <h2
           style={{
-            fontSize: '15px',
+            fontSize: '16px',
             fontWeight: 700,
-            color: '#FFFFFF',
+            color: '#0F172A',
             marginBottom: '4px',
           }}
         >
-          Account
+          Account Details
         </h2>
-        <p style={{ fontSize: '13px', color: '#64748B', marginBottom: '12px' }}>
-          Your profile information.
+        <p style={{ fontSize: '13px', color: '#64748B', marginBottom: '16px' }}>
+          Your profile information
         </p>
-        <Row label="Name" value={profile.full_name ?? '—'} />
-        <Row label="Email" value={profile.email} />
+        <Row label="Full Name" value={profile.full_name ?? '—'} />
+        <Row label="Email Address" value={profile.email} />
         <Row label="Role" value={roleLabel} />
-        {profile.index_number && <Row label="Index number" value={profile.index_number} />}
+        {profile.index_number && <Row label="Index Number" value={profile.index_number} />}
         {profile.level && <Row label="Level" value={profile.level} />}
       </section>
 
@@ -88,22 +96,22 @@ export function SettingsClient({ profile }: SettingsClientProps) {
       <section
         style={{
           padding: '24px',
-          borderRadius: '16px',
-          border: '1px solid rgba(239, 68, 68, 0.3)',
-          background: 'rgba(239, 68, 68, 0.05)',
+          borderRadius: '12px',
+          border: '1px solid #FECACA',
+          background: '#FEF2F2',
         }}
       >
         <h2
           style={{
             fontSize: '15px',
             fontWeight: 700,
-            color: '#EF4444',
+            color: '#DC2626',
             marginBottom: '4px',
           }}
         >
           Delete Account
         </h2>
-        <p style={{ fontSize: '13px', color: '#94A3B8', marginBottom: '16px', lineHeight: 1.5 }}>
+        <p style={{ fontSize: '13px', color: '#7F1D1D', marginBottom: '16px', lineHeight: 1.5 }}>
           {DELETE_WARNING}
         </p>
         <button
@@ -113,7 +121,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
             setError(null)
             setIsOpen(true)
           }}
-          style={{ minHeight: '44px' }}
+          style={{ minHeight: '40px', padding: '8px 18px', fontSize: '13px' }}
         >
           Delete Account
         </button>
@@ -127,7 +135,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
         title="Delete Account"
         maxWidth={460}
       >
-        <p style={{ fontSize: '14px', color: '#E2E8F0', lineHeight: 1.6, marginBottom: '20px' }}>
+        <p style={{ fontSize: '14px', color: '#475569', lineHeight: 1.6, marginBottom: '20px' }}>
           {DELETE_WARNING}
         </p>
 
@@ -136,11 +144,11 @@ export function SettingsClient({ profile }: SettingsClientProps) {
             role="alert"
             style={{
               fontSize: '13px',
-              color: '#FCA5A5',
-              background: 'rgba(239, 68, 68, 0.1)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              borderRadius: '10px',
-              padding: '10px 12px',
+              color: '#DC2626',
+              background: '#FEF2F2',
+              border: '1px solid #FECACA',
+              borderRadius: '8px',
+              padding: '10px 14px',
               marginBottom: '16px',
             }}
           >
@@ -148,23 +156,25 @@ export function SettingsClient({ profile }: SettingsClientProps) {
           </div>
         )}
 
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
           <button
+            type="button"
             className="btn-ghost"
             onClick={() => setIsOpen(false)}
             disabled={isPending}
-            style={{ minHeight: '44px' }}
+            style={{ minHeight: '40px' }}
           >
             Cancel
           </button>
           <button
             id="confirm-delete-account"
+            type="button"
             className="btn-danger"
             onClick={handleConfirmDelete}
             disabled={isPending}
-            style={{ minHeight: '44px' }}
+            style={{ minHeight: '40px', padding: '8px 18px' }}
           >
-            {isPending ? 'Deleting…' : 'Delete Account'}
+            {isPending ? 'Deleting…' : 'Yes, Delete My Account'}
           </button>
         </div>
       </Modal>

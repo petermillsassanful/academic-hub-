@@ -66,20 +66,19 @@ function computeStudentRows(
 }
 
 function rateColor(pct: number): string {
-  if (pct >= 75) return '#34D399'
-  if (pct >= 50) return '#FCD34D'
-  return '#FCA5A5'
+  if (pct >= 75) return '#059669'
+  if (pct >= 50) return '#D97706'
+  return '#DC2626'
 }
 
 function gradeColor(pct: number | null): string {
-  if (pct === null) return '#475569'
-  if (pct >= 70) return '#34D399'
-  if (pct >= 50) return '#FCD34D'
-  return '#FCA5A5'
+  if (pct === null) return '#64748B'
+  if (pct >= 70) return '#059669'
+  if (pct >= 50) return '#D97706'
+  return '#DC2626'
 }
 
 function exportGradesCSV(rows: StudentRow[], assignments: Assignment[], submissions: Submission[], courseName: string) {
-  const assignmentMap = new Map(assignments.map((a) => [a.id, a]))
   const subsByStudent = new Map<string, Map<string, Submission>>()
   for (const s of submissions) {
     if (!subsByStudent.has(s.student_id)) subsByStudent.set(s.student_id, new Map())
@@ -98,25 +97,24 @@ function exportGradesCSV(rows: StudentRow[], assignments: Assignment[], submissi
     const grades = assignments.map((a) => {
       const sub = subsByStudent.get(row.id)?.get(a.id)
       if (!sub) return ''
-      if (sub.grade === null) return 'Submitted'
-      return String(sub.grade)
+      return sub.grade !== null ? String(sub.grade) : 'ungraded'
     })
     return [
       `"${row.fullName}"`,
       `"${row.indexNumber}"`,
       ...grades,
-      Math.round(row.submissionRate).toString(),
-      row.averageGrade !== null ? Math.round(row.averageGrade).toString() : '—',
+      Math.round(row.submissionRate),
+      row.averageGrade !== null ? Math.round(row.averageGrade) : '',
     ]
   })
 
   const csv = [headers.join(','), ...csvRows.map((r) => r.join(','))].join('\n')
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = `${courseName.replace(/[^a-zA-Z0-9]/g, '_')}_grades.csv`
-  link.click()
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `${courseName.toLowerCase().replace(/[^a-z0-9]/g, '_')}_grades.csv`
+  a.click()
   URL.revokeObjectURL(url)
 }
 
@@ -142,7 +140,7 @@ export function StudentsTab({ students, assignments, submissions, courseName }: 
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
         <div style={{ position: 'relative', flex: 1, minWidth: '200px' }}>
           <svg
-            width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2"
+            width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2"
             style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }}
           >
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -150,7 +148,7 @@ export function StudentsTab({ students, assignments, submissions, courseName }: 
           <input
             type="text"
             className="form-input"
-            placeholder="Search by name or index number…"
+            placeholder="Search student by name or index number…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{ paddingLeft: '38px' }}
@@ -158,7 +156,7 @@ export function StudentsTab({ students, assignments, submissions, courseName }: 
         </div>
         <button
           className="btn-primary"
-          style={{ padding: '10px 18px', fontSize: '13px', whiteSpace: 'nowrap', minHeight: '44px' }}
+          style={{ padding: '9px 18px', fontSize: '13px', whiteSpace: 'nowrap', minHeight: '40px' }}
           onClick={() => exportGradesCSV(rows, assignments, submissions, courseName)}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '6px' }}>
@@ -166,12 +164,12 @@ export function StudentsTab({ students, assignments, submissions, courseName }: 
             <polyline points="7 10 12 15 17 10"/>
             <line x1="12" y1="15" x2="12" y2="3"/>
           </svg>
-          Export Grades
+          Export CSV Grades
         </button>
       </div>
 
       {/* Summary */}
-      <div style={{ fontSize: '12px', color: '#475569', marginBottom: '12px' }}>
+      <div style={{ fontSize: '12px', color: '#64748B', marginBottom: '12px' }}>
         {filtered.length} student{filtered.length !== 1 ? 's' : ''}
         {search.trim() && ` matching "${search}"`}
         {' — '}{assignments.length} assignment{assignments.length !== 1 ? 's' : ''}
@@ -181,33 +179,34 @@ export function StudentsTab({ students, assignments, submissions, courseName }: 
       {filtered.length === 0 ? (
         <div style={{
           padding: '48px 40px', textAlign: 'center',
-          background: 'rgba(255,255,255,0.02)',
-          border: '1px dashed #1E293B', borderRadius: '12px',
+          background: '#FFFFFF',
+          border: '1px solid #E2E8F0', borderRadius: '12px',
         }}>
-          <p style={{ fontSize: '14px', color: '#64748B' }}>
+          <p style={{ fontSize: '14px', color: '#64748B', margin: 0 }}>
             {students.length === 0
-              ? 'No students at this level yet.'
+              ? 'No students enrolled at this level yet.'
               : 'No students match your search.'}
           </p>
         </div>
       ) : (
       <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
         <div style={{
-          background: 'rgba(255,255,255,0.02)',
-          border: '1px solid #1E293B',
+          background: '#FFFFFF',
+          border: '1px solid #E2E8F0',
           borderRadius: '12px',
           overflow: 'hidden',
           minWidth: '520px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
         }}>
           {/* Header */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: '1fr 140px 130px 130px',
-            padding: '10px 16px',
-            borderBottom: '1px solid #1E293B',
-            background: 'rgba(255,255,255,0.02)',
+            gridTemplateColumns: '1fr 140px 140px 130px',
+            padding: '12px 18px',
+            borderBottom: '1px solid #E2E8F0',
+            background: '#F8FAFC',
           }}>
-            {['Student', 'Index No.', 'Submission Rate', 'Avg. Grade'].map((h) => (
+            {['Student Name', 'Index Number', 'Submission Rate', 'Avg. Grade'].map((h) => (
               <div key={h} style={{
                 fontSize: '11px',
                 fontWeight: '700',
@@ -226,24 +225,24 @@ export function StudentsTab({ students, assignments, submissions, courseName }: 
               key={row.id}
               style={{
                 display: 'grid',
-                gridTemplateColumns: '1fr 140px 130px 130px',
-                padding: '12px 16px',
-                borderBottom: i < filtered.length - 1 ? '1px solid #1E293B' : 'none',
+                gridTemplateColumns: '1fr 140px 140px 130px',
+                padding: '14px 18px',
+                borderBottom: i < filtered.length - 1 ? '1px solid #F1F5F9' : 'none',
                 alignItems: 'center',
                 transition: 'background 100ms ease',
               }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.02)' }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = '#F8FAFC' }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'transparent' }}
             >
               {/* Name */}
               <div>
-                <div style={{ fontSize: '13px', fontWeight: '600', color: '#FFFFFF' }}>
+                <div style={{ fontSize: '14px', fontWeight: '600', color: '#0F172A' }}>
                   {row.fullName}
                 </div>
               </div>
 
               {/* Index Number */}
-              <div style={{ fontSize: '12px', color: '#94A3B8', fontFamily: 'monospace', letterSpacing: '0.02em' }}>
+              <div style={{ fontSize: '13px', color: '#475569', fontFamily: 'monospace', letterSpacing: '0.02em' }}>
                 {row.indexNumber}
               </div>
 
@@ -251,7 +250,7 @@ export function StudentsTab({ students, assignments, submissions, courseName }: 
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <div style={{
                   width: '48px', height: '6px', borderRadius: '3px',
-                  background: 'rgba(255,255,255,0.06)',
+                  background: '#E2E8F0',
                   overflow: 'hidden',
                 }}>
                   <div style={{
@@ -264,7 +263,7 @@ export function StudentsTab({ students, assignments, submissions, courseName }: 
                 </div>
                 <span style={{
                   fontSize: '12px',
-                  fontWeight: '600',
+                  fontWeight: '700',
                   color: rateColor(row.submissionRate),
                 }}>
                   {Math.round(row.submissionRate)}%
@@ -278,14 +277,15 @@ export function StudentsTab({ students, assignments, submissions, courseName }: 
                     padding: '3px 10px',
                     borderRadius: '6px',
                     fontSize: '12px',
-                    fontWeight: '600',
-                    background: `${gradeColor(row.averageGrade)}18`,
+                    fontWeight: '700',
+                    background: `${gradeColor(row.averageGrade)}15`,
                     color: gradeColor(row.averageGrade),
+                    border: `1px solid ${gradeColor(row.averageGrade)}30`,
                   }}>
                     {Math.round(row.averageGrade)}%
                   </span>
                 ) : (
-                  <span style={{ fontSize: '12px', color: '#475569' }}>—</span>
+                  <span style={{ fontSize: '12px', color: '#94A3B8' }}>—</span>
                 )}
               </div>
             </div>

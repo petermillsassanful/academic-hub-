@@ -26,59 +26,58 @@ export function CoursePageClient({ course, userId, studentCount }: CoursePageCli
           alignItems: 'center',
           gap: '6px',
           fontSize: '13px',
-          color: '#64748B',
+          fontWeight: '600',
+          color: '#1B2559',
           textDecoration: 'none',
-          marginBottom: '20px',
+          marginBottom: '16px',
           transition: 'color 150ms ease',
         }}
-        onMouseEnter={(e) => { e.currentTarget.style.color = '#94A3B8' }}
-        onMouseLeave={(e) => { e.currentTarget.style.color = '#64748B' }}
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
           <path d="M19 12H5M12 5l-7 7 7 7" />
         </svg>
-        Back to Dashboard
+        ← Back to Lecturer Dashboard
       </Link>
 
       {/* Course Header Card */}
-      <div className="glass-card" style={{ padding: '28px 32px', marginBottom: '28px' }}>
+      <div className="glass-card" style={{ padding: '24px 28px', marginBottom: '24px', background: '#FFFFFF' }}>
         {/* Top row: badge + actions */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px', marginBottom: '16px', flexWrap: 'wrap' }} className="mobile-stack-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px', marginBottom: '14px', flexWrap: 'wrap' }} className="mobile-stack-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
             <span style={{
-              padding: '4px 11px',
-              background: 'rgba(79,70,229,0.12)',
-              border: '1px solid rgba(79,70,229,0.3)',
-              borderRadius: '7px',
+              padding: '4px 10px',
+              background: '#EFF6FF',
+              border: '1px solid #BFDBFE',
+              borderRadius: '6px',
               fontSize: '12px',
               fontWeight: '700',
-              color: '#818CF8',
-              letterSpacing: '0.07em',
+              color: '#1D4ED8',
+              letterSpacing: '0.06em',
               textTransform: 'uppercase',
             }}>
               {course.code}
             </span>
             <span style={{
               padding: '4px 10px',
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid #1E293B',
-              borderRadius: '7px',
+              background: '#F8FAFC',
+              border: '1px solid #E2E8F0',
+              borderRadius: '6px',
               fontSize: '12px',
               color: '#64748B',
-              fontWeight: '500',
+              fontWeight: '600',
             }}>
               {course.semester}
             </span>
             <span style={{
               padding: '4px 10px',
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid #1E293B',
-              borderRadius: '7px',
+              background: '#F8FAFC',
+              border: '1px solid #E2E8F0',
+              borderRadius: '6px',
               fontSize: '12px',
               color: '#64748B',
-              fontWeight: '500',
+              fontWeight: '600',
             }}>
-              {studentCount} student{studentCount !== 1 ? 's' : ''}
+              {studentCount} student{studentCount !== 1 ? 's' : ''} enrolled
             </span>
           </div>
 
@@ -93,34 +92,32 @@ export function CoursePageClient({ course, userId, studentCount }: CoursePageCli
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                padding: '8px 14px',
-                minHeight: '44px',
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid #334155',
-                borderRadius: '9px',
-                color: '#94A3B8',
+                padding: '7px 14px',
+                minHeight: '38px',
+                background: '#FFFFFF',
+                border: '1px solid #CBD5E1',
+                borderRadius: '8px',
+                color: '#334155',
                 fontSize: '13px',
-                fontWeight: '500',
+                fontWeight: '600',
                 cursor: 'pointer',
                 fontFamily: 'inherit',
                 transition: 'all 150ms ease',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(79,70,229,0.1)'
-                e.currentTarget.style.borderColor = 'rgba(79,70,229,0.3)'
-                e.currentTarget.style.color = '#FFFFFF'
+                e.currentTarget.style.background = '#F8FAFC'
+                e.currentTarget.style.borderColor = '#94A3B8'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.04)'
-                e.currentTarget.style.borderColor = '#334155'
-                e.currentTarget.style.color = '#94A3B8'
+                e.currentTarget.style.background = '#FFFFFF'
+                e.currentTarget.style.borderColor = '#CBD5E1'
               }}
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
               </svg>
-              Edit
+              Edit Course
             </button>
 
             {/* Delete */}
@@ -132,27 +129,23 @@ export function CoursePageClient({ course, userId, studentCount }: CoursePageCli
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                padding: '8px 14px',
-                minHeight: '44px',
-                background: 'rgba(239,68,68,0.06)',
-                border: '1px solid rgba(239,68,68,0.25)',
-                borderRadius: '9px',
-                color: '#FCA5A5',
+                padding: '7px 14px',
+                minHeight: '38px',
+                background: '#FEF2F2',
+                border: '1px solid #FECACA',
+                borderRadius: '8px',
+                color: '#DC2626',
                 fontSize: '13px',
-                fontWeight: '500',
+                fontWeight: '600',
                 cursor: 'pointer',
                 fontFamily: 'inherit',
                 transition: 'all 150ms ease',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(239,68,68,0.15)'
-                e.currentTarget.style.borderColor = 'rgba(239,68,68,0.45)'
-                e.currentTarget.style.color = '#FFFFFF'
+                e.currentTarget.style.background = '#FEE2E2'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(239,68,68,0.06)'
-                e.currentTarget.style.borderColor = 'rgba(239,68,68,0.25)'
-                e.currentTarget.style.color = '#FCA5A5'
+                e.currentTarget.style.background = '#FEF2F2'
               }}
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -160,19 +153,19 @@ export function CoursePageClient({ course, userId, studentCount }: CoursePageCli
                 <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
                 <path d="M10 11v6M14 11v6" />
               </svg>
-              Delete Course
+              Delete
             </button>
           </div>
         </div>
 
         {/* Course name */}
         <h1 style={{
-          fontSize: '26px',
+          fontSize: '24px',
           fontWeight: '800',
-          color: '#FFFFFF',
+          color: '#0F172A',
           letterSpacing: '-0.02em',
           lineHeight: 1.2,
-          marginBottom: course.description ? '12px' : '0',
+          marginBottom: course.description ? '10px' : '0',
         }}>
           {course.name}
         </h1>
@@ -181,17 +174,18 @@ export function CoursePageClient({ course, userId, studentCount }: CoursePageCli
         {course.description && (
           <p style={{
             fontSize: '14px',
-            color: '#64748B',
-            lineHeight: 1.7,
-            maxWidth: '700px',
+            color: '#475569',
+            lineHeight: 1.6,
+            maxWidth: '780px',
+            margin: '0 0 12px',
           }}>
             {course.description}
           </p>
         )}
 
         {/* Created date */}
-        <p style={{ fontSize: '12px', color: '#334155', marginTop: '16px', fontWeight: '500' }}>
-          Created {new Date(course.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+        <p style={{ fontSize: '12px', color: '#94A3B8', margin: 0, fontWeight: '500' }}>
+          Created on {new Date(course.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
         </p>
       </div>
 

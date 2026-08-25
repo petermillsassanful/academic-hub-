@@ -24,9 +24,9 @@ export function AdminDashboardClient({ userId, courses }: AdminDashboardClientPr
         marginBottom: '20px',
       }} className="mobile-stack-header">
         <h2 style={{
-          fontSize: '16px',
+          fontSize: '18px',
           fontWeight: '700',
-          color: '#FFFFFF',
+          color: '#0F172A',
           letterSpacing: '-0.01em',
         }}>
           {hasCourses ? `My Courses (${courses.length})` : 'My Courses'}
@@ -36,13 +36,13 @@ export function AdminDashboardClient({ userId, courses }: AdminDashboardClientPr
             id="new-course-btn"
             onClick={() => setModalOpen(true)}
             className="btn-primary"
-            style={{ padding: '8px 18px', fontSize: '13px', minHeight: '44px', display: 'flex', alignItems: 'center', gap: '7px' }}
+            style={{ padding: '8px 18px', fontSize: '13px', minHeight: '40px', display: 'flex', alignItems: 'center', gap: '7px' }}
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <line x1="12" y1="5" x2="12" y2="19" />
               <line x1="5" y1="12" x2="19" y2="12" />
             </svg>
-            New Course
+            + New Course
           </button>
         )}
       </div>
@@ -60,19 +60,19 @@ export function AdminDashboardClient({ userId, courses }: AdminDashboardClientPr
         </div>
       ) : (
         /* Empty state with active button */
-        <div className="glass-card" style={{ padding: '60px 40px', textAlign: 'center' }}>
+        <div className="glass-card" style={{ padding: '60px 40px', textAlign: 'center', background: '#FFFFFF' }}>
           <div style={{
-            width: '72px',
-            height: '72px',
-            margin: '0 auto 20px',
-            background: 'rgba(79,70,229,0.1)',
-            border: '1px solid rgba(79,70,229,0.2)',
-            borderRadius: '20px',
+            width: '64px',
+            height: '64px',
+            margin: '0 auto 16px',
+            background: '#EFF6FF',
+            border: '1px solid #DBEAFE',
+            borderRadius: '16px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
           }}>
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#818CF8" strokeWidth="1.5">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="1.75">
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
               <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
               <line x1="12" y1="7" x2="12" y2="13" />
@@ -80,11 +80,11 @@ export function AdminDashboardClient({ userId, courses }: AdminDashboardClientPr
             </svg>
           </div>
 
-          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#FFFFFF', marginBottom: '8px', letterSpacing: '-0.01em' }}>
+          <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#0F172A', marginBottom: '8px', letterSpacing: '-0.01em' }}>
             No courses yet
           </h2>
-          <p style={{ fontSize: '14px', color: '#64748B', maxWidth: '360px', margin: '0 auto 28px', lineHeight: 1.6 }}>
-            Get started by creating your first course. You can add lessons, assignments, and enroll students once you&apos;re set up.
+          <p style={{ fontSize: '14px', color: '#64748B', maxWidth: '360px', margin: '0 auto 24px', lineHeight: 1.6 }}>
+            Get started by creating your first course. You can add materials, assignments, quizzes, and manage enrolled students.
           </p>
 
           <button

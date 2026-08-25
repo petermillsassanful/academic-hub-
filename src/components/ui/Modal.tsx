@@ -64,12 +64,10 @@ export function Modal({ isOpen, onClose, title, children, maxWidth = 520 }: Moda
             style={{
               width: '100%',
               maxWidth,
-              background: 'rgba(15, 23, 42, 0.95)',
-              border: '1px solid #1E293B',
+              background: '#FFFFFF',
+              border: '1px solid #E2E8F0',
               borderRadius: '16px',
-              boxShadow: '0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(79,70,229,0.1)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.18)',
               overflow: 'hidden',
             }}
           >
@@ -78,13 +76,14 @@ export function Modal({ isOpen, onClose, title, children, maxWidth = 520 }: Moda
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              padding: '20px 24px',
-              borderBottom: '1px solid #1E293B',
+              padding: '18px 24px',
+              background: '#F8FAFC',
+              borderBottom: '1px solid #E2E8F0',
             }}>
               <h2 style={{
                 fontSize: '16px',
                 fontWeight: '700',
-                color: '#FFFFFF',
+                color: '#0F172A',
                 letterSpacing: '-0.01em',
               }}>
                 {title}
@@ -96,8 +95,8 @@ export function Modal({ isOpen, onClose, title, children, maxWidth = 520 }: Moda
                   width: '32px',
                   height: '32px',
                   borderRadius: '8px',
-                  border: '1px solid #1E293B',
-                  background: 'transparent',
+                  border: '1px solid #E2E8F0',
+                  background: '#FFFFFF',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -106,11 +105,11 @@ export function Modal({ isOpen, onClose, title, children, maxWidth = 520 }: Moda
                   transition: 'all 150ms ease',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#1E293B'
-                  e.currentTarget.style.color = '#FFFFFF'
+                  e.currentTarget.style.background = '#F1F5F9'
+                  e.currentTarget.style.color = '#0F172A'
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'transparent'
+                  e.currentTarget.style.background = '#FFFFFF'
                   e.currentTarget.style.color = '#64748B'
                 }}
               >

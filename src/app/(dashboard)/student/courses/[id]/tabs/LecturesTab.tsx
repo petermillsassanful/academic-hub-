@@ -23,59 +23,79 @@ export function LecturesTab({ recordings }: LecturesTabProps) {
   if (recordings.length === 0) {
     return (
       <div style={{
-        padding: '50px 30px',
+        padding: '48px 30px',
         textAlign: 'center',
-        background: 'rgba(255,255,255,0.02)',
-        border: '1px dashed #1E293B',
+        background: '#FFFFFF',
+        border: '1px solid #E2E8F0',
         borderRadius: '12px',
+        animation: 'tabFadeIn 200ms ease',
       }}>
         <div style={{
-          width: '48px', height: '48px', margin: '0 auto 14px',
-          background: 'rgba(79,70,229,0.08)', borderRadius: '12px',
+          width: '48px', height: '48px', margin: '0 auto 12px',
+          background: '#EFF6FF', borderRadius: '12px',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" strokeWidth="1.5">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
             <polygon points="23 7 16 12 23 17 23 7"/>
             <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
           </svg>
         </div>
-        <p style={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFF', marginBottom: '6px' }}>No lecture recordings yet</p>
-        <p style={{ fontSize: '13px', color: '#475569' }}>Your lecturer hasn&apos;t uploaded any recordings yet. Check back soon.</p>
+        <p style={{ fontSize: '15px', fontWeight: '700', color: '#0F172A', marginBottom: '4px' }}>No lecture recordings yet</p>
+        <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>Your lecturer hasn&apos;t uploaded any recordings yet. Check back soon.</p>
       </div>
     )
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'tabFadeIn 200ms ease' }}>
       {[...grouped.entries()].map(([week, items]) => (
-        <div key={week}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+        <div
+          key={week}
+          style={{
+            background: '#FFFFFF',
+            border: '1px solid #E2E8F0',
+            borderRadius: '12px',
+            padding: '20px 24px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+          }}
+        >
+          {/* Module / Week Header */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px',
+            paddingBottom: '12px', borderBottom: '1px solid #F1F5F9',
+          }}>
             <span style={{
               padding: '3px 10px',
-              background: 'rgba(139,92,246,0.1)',
-              border: '1px solid rgba(139,92,246,0.2)',
-              borderRadius: '99px',
-              fontSize: '12px', fontWeight: '700', color: '#A78BFA',
+              background: '#EFF6FF',
+              border: '1px solid #BFDBFE',
+              borderRadius: '6px',
+              fontSize: '12px', fontWeight: '700', color: '#1D4ED8',
             }}>
               Week {week}
             </span>
-            <div style={{ flex: 1, height: '1px', background: '#1E293B' }} />
+            <span style={{ fontSize: '15px', fontWeight: '700', color: '#0F172A' }}>
+              Lecture Recordings & Audio
+            </span>
+            <span style={{ marginLeft: 'auto', fontSize: '12px', color: '#64748B' }}>
+              {items.length} recording{items.length !== 1 ? 's' : ''}
+            </span>
           </div>
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {items.map((r) => {
               const playerType = r.file_type === 'mp4' || r.file_type === 'mov' ? 'video' : 'audio'
               return (
                 <div key={r.id} style={{
                   padding: '16px',
-                  background: 'rgba(255,255,255,0.02)',
-                  border: '1px solid #1E293B',
-                  borderRadius: '12px',
+                  background: '#F8FAFC',
+                  border: '1px solid #E2E8F0',
+                  borderRadius: '10px',
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
-                    <FileIcon fileType={r.file_type} size={18} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                    <FileIcon fileType={r.file_type} size={20} />
                     <div>
-                      <p style={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFF', margin: 0 }}>{r.title}</p>
-                      <p style={{ fontSize: '12px', color: '#334155', margin: 0 }}>
+                      <p style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A', margin: 0 }}>{r.title}</p>
+                      <p style={{ fontSize: '11px', color: '#64748B', margin: 0 }}>
                         {r.file_type.toUpperCase()} · {formatBytes(r.file_size)}
                       </p>
                     </div>

@@ -34,47 +34,46 @@ function EmptyState({ icon, title, subtitle }: { icon: React.ReactNode; title: s
   return (
     <div style={{
       padding: '40px 32px', textAlign: 'center',
-      background: 'rgba(255,255,255,0.02)',
-      border: '1px dashed #1E293B', borderRadius: '12px',
+      background: '#FFFFFF',
+      border: '1px dashed #CBD5E1', borderRadius: '12px',
     }}>
       <div style={{
-        width: '44px', height: '44px', margin: '0 auto 14px',
-        background: 'rgba(79,70,229,0.08)', borderRadius: '12px',
+        width: '44px', height: '44px', margin: '0 auto 12px',
+        background: '#EFF6FF', borderRadius: '12px',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
         {icon}
       </div>
-      <p style={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFF', marginBottom: '4px' }}>{title}</p>
-      <p style={{ fontSize: '13px', color: '#475569', maxWidth: '280px', margin: '0 auto', lineHeight: 1.5 }}>{subtitle}</p>
+      <p style={{ fontSize: '15px', fontWeight: '700', color: '#0F172A', marginBottom: '4px' }}>{title}</p>
+      <p style={{ fontSize: '13px', color: '#64748B', maxWidth: '280px', margin: '0 auto', lineHeight: 1.5 }}>{subtitle}</p>
     </div>
   )
 }
 
 // ── Stat card ───────────────────────────────────────────────────────────────
 
-function StatCard({ label, value, icon, gradientClass, iconColor }: {
+function StatCard({ label, value, icon, iconBg, iconColor }: {
   label: string
   value: number | string
   icon: React.ReactNode
-  gradientClass: string
+  iconBg: string
   iconColor: string
 }) {
   return (
     <div
-      className={`glass-card ${gradientClass}`}
-      style={{ padding: '20px', display: 'flex', alignItems: 'flex-start', gap: '14px' }}
+      className="glass-card"
+      style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '14px', background: '#FFFFFF' }}
     >
       <div style={{
-        width: '40px', height: '40px', borderRadius: '10px',
-        background: 'rgba(255,255,255,0.05)',
-        border: '1px solid rgba(255,255,255,0.08)',
+        width: '44px', height: '44px', borderRadius: '10px',
+        background: iconBg,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         flexShrink: 0, color: iconColor,
       }}>
         {icon}
       </div>
       <div>
-        <div style={{ fontSize: '24px', fontWeight: '800', color: '#FFFFFF', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
+        <div style={{ fontSize: '24px', fontWeight: '800', color: '#0F172A', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
           {value}
         </div>
         <div style={{ fontSize: '12px', color: '#64748B', marginTop: '3px', fontWeight: '500' }}>
@@ -91,13 +90,13 @@ function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: 
   if (!active || !payload?.length) return null
   return (
     <div style={{
-      background: 'rgba(15, 23, 42, 0.95)', border: '1px solid #334155',
+      background: '#FFFFFF', border: '1px solid #E2E8F0',
       borderRadius: '8px', padding: '8px 12px',
-      fontSize: '12px', color: '#E2E8F0',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+      fontSize: '12px', color: '#0F172A',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
     }}>
-      <div style={{ fontWeight: '600', marginBottom: '2px' }}>{label}</div>
-      <div style={{ color: '#94A3B8' }}>{payload[0].value} student{payload[0].value !== 1 ? 's' : ''}</div>
+      <div style={{ fontWeight: '700', marginBottom: '2px' }}>{label}</div>
+      <div style={{ color: '#64748B' }}>{payload[0].value} student{payload[0].value !== 1 ? 's' : ''}</div>
     </div>
   )
 }
@@ -202,57 +201,57 @@ export function AnalyticsTab({ students, assignments, submissions }: AnalyticsTa
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
         gap: '14px',
-        marginBottom: '32px',
+        marginBottom: '28px',
       }}>
         <StatCard
           label="Total Students"
           value={totalStudents}
-          gradientClass="stat-gradient-indigo"
-          iconColor="#818CF8"
-          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>}
+          iconBg="#EFF6FF"
+          iconColor="#2563EB"
+          icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>}
         />
         <StatCard
           label="Assignments Posted"
           value={totalAssignments}
-          gradientClass="stat-gradient-emerald"
-          iconColor="#34D399"
-          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>}
+          iconBg="#ECFDF5"
+          iconColor="#059669"
+          icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>}
         />
         <StatCard
           label="Average Grade"
           value={averageGrade !== null ? `${Math.round(averageGrade)}%` : '—'}
-          gradientClass="stat-gradient-amber"
-          iconColor="#FCD34D"
-          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>}
+          iconBg="#FFFBEB"
+          iconColor="#D97706"
+          icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>}
         />
         <StatCard
           label="Submission Rate"
           value={overallSubmissionRate !== null ? `${Math.round(overallSubmissionRate)}%` : '—'}
-          gradientClass="stat-gradient-slate"
-          iconColor="#94A3B8"
-          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>}
+          iconBg="#F5F3FF"
+          iconColor="#7C3AED"
+          icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>}
         />
       </div>
 
       {/* ── Submission Rate per Assignment ──────────────────────────────────── */}
-      <div className="glass-card" style={{ padding: '24px', marginBottom: '24px' }}>
-        <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#FFFFFF', marginBottom: '18px', letterSpacing: '-0.01em' }}>
+      <div className="glass-card" style={{ padding: '24px', marginBottom: '24px', background: '#FFFFFF' }}>
+        <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#0F172A', marginBottom: '18px', letterSpacing: '-0.01em' }}>
           Submission Rate per Assignment
         </h3>
         {totalAssignments === 0 ? (
           <EmptyState
-            icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" strokeWidth="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>}
+            icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>}
             title="No assignments yet"
             subtitle="Create an assignment to start tracking submission rates."
           />
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {submissionRates.map((item) => (
               <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 {/* Title */}
                 <div style={{
                   width: '180px', flexShrink: 0,
-                  fontSize: '13px', fontWeight: '500', color: '#E2E8F0',
+                  fontSize: '13px', fontWeight: '600', color: '#0F172A',
                   overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                 }} title={item.title}>
                   {item.title}
@@ -260,14 +259,14 @@ export function AnalyticsTab({ students, assignments, submissions }: AnalyticsTa
 
                 {/* Bar track */}
                 <div style={{
-                  flex: 1, height: '10px', borderRadius: '5px',
-                  background: 'rgba(255,255,255,0.04)',
+                  flex: 1, height: '8px', borderRadius: '4px',
+                  background: '#F1F5F9',
                   overflow: 'hidden',
                 }}>
                   <div style={{
                     width: `${Math.min(item.pct, 100)}%`,
                     height: '100%',
-                    borderRadius: '5px',
+                    borderRadius: '4px',
                     background: rateColor(item.pct),
                     transition: 'width 400ms ease',
                     minWidth: item.count > 0 ? '4px' : '0',
@@ -276,8 +275,8 @@ export function AnalyticsTab({ students, assignments, submissions }: AnalyticsTa
 
                 {/* Count + percentage */}
                 <div style={{
-                  width: '110px', flexShrink: 0,
-                  fontSize: '12px', fontWeight: '600',
+                  width: '120px', flexShrink: 0,
+                  fontSize: '12px', fontWeight: '700',
                   color: rateColor(item.pct),
                   textAlign: 'right',
                 }}>
@@ -293,16 +292,16 @@ export function AnalyticsTab({ students, assignments, submissions }: AnalyticsTa
       <div style={{
         display: 'grid',
         gridTemplateColumns: '1fr 320px',
-        gap: '24px',
+        gap: '20px',
       }}>
         {/* Grade Distribution Chart */}
-        <div className="glass-card" style={{ padding: '24px' }}>
-          <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#FFFFFF', marginBottom: '18px', letterSpacing: '-0.01em' }}>
+        <div className="glass-card" style={{ padding: '24px', background: '#FFFFFF' }}>
+          <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#0F172A', marginBottom: '18px', letterSpacing: '-0.01em' }}>
             Grade Distribution
           </h3>
           {!hasGradedSubmissions ? (
             <EmptyState
-              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" strokeWidth="1.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>}
+              icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>}
               title="No grades yet"
               subtitle="Grade some submissions to see the distribution here."
             />
@@ -313,7 +312,7 @@ export function AnalyticsTab({ students, assignments, submissions }: AnalyticsTa
                   <XAxis
                     dataKey="range"
                     tick={{ fill: '#64748B', fontSize: 11 }}
-                    axisLine={{ stroke: '#1E293B' }}
+                    axisLine={{ stroke: '#E2E8F0' }}
                     tickLine={false}
                   />
                   <YAxis
@@ -322,12 +321,12 @@ export function AnalyticsTab({ students, assignments, submissions }: AnalyticsTa
                     axisLine={false}
                     tickLine={false}
                   />
-                  <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(99, 102, 241, 0.08)' }} />
+                  <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(37, 99, 235, 0.05)' }} />
                   <Bar dataKey="count" radius={[6, 6, 0, 0]} maxBarSize={42}>
                     {gradeDistribution.map((entry) => (
                       <Cell
                         key={entry.range}
-                        fill={entry.count > 0 ? '#6366F1' : 'rgba(99, 102, 241, 0.15)'}
+                        fill={entry.count > 0 ? '#2563EB' : '#E2E8F0'}
                       />
                     ))}
                   </Bar>
@@ -338,13 +337,13 @@ export function AnalyticsTab({ students, assignments, submissions }: AnalyticsTa
         </div>
 
         {/* Active vs Inactive Students (Donut) */}
-        <div className="glass-card" style={{ padding: '24px' }}>
-          <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#FFFFFF', marginBottom: '18px', letterSpacing: '-0.01em' }}>
-            Student Activity
+        <div className="glass-card" style={{ padding: '24px', background: '#FFFFFF' }}>
+          <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#0F172A', marginBottom: '18px', letterSpacing: '-0.01em' }}>
+            Student Engagement
           </h3>
           {activityData.length === 0 ? (
             <EmptyState
-              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" strokeWidth="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>}
+              icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>}
               title={totalStudents === 0 ? 'No students yet' : 'No assignments yet'}
               subtitle={totalStudents === 0
                 ? 'Students at this level will appear here automatically.'
@@ -367,7 +366,7 @@ export function AnalyticsTab({ students, assignments, submissions }: AnalyticsTa
                       stroke="none"
                     >
                       {activityData.map((entry) => (
-                        <Cell key={entry.name} fill={entry.color} />
+                        <Cell key={entry.name} fill={entry.name === 'Active' ? '#2563EB' : '#E2E8F0'} />
                       ))}
                     </Pie>
                   </PieChart>
@@ -378,7 +377,7 @@ export function AnalyticsTab({ students, assignments, submissions }: AnalyticsTa
                   transform: 'translate(-50%, -50%)',
                   textAlign: 'center',
                 }}>
-                  <div style={{ fontSize: '22px', fontWeight: '800', color: '#FFFFFF', lineHeight: 1 }}>
+                  <div style={{ fontSize: '22px', fontWeight: '800', color: '#0F172A', lineHeight: 1 }}>
                     {activeStudents}
                   </div>
                   <div style={{ fontSize: '11px', color: '#64748B', marginTop: '2px' }}>
@@ -388,15 +387,14 @@ export function AnalyticsTab({ students, assignments, submissions }: AnalyticsTa
               </div>
 
               {/* Legend */}
-              <div style={{ display: 'flex', gap: '20px', marginTop: '16px' }}>
+              <div style={{ display: 'flex', gap: '16px', marginTop: '16px' }}>
                 {activityData.map((entry) => (
                   <div key={entry.name} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <div style={{
                       width: '10px', height: '10px', borderRadius: '3px',
-                      background: entry.color,
-                      border: entry.name === 'Inactive' ? '1px solid #334155' : 'none',
+                      background: entry.name === 'Active' ? '#2563EB' : '#E2E8F0',
                     }} />
-                    <span style={{ fontSize: '12px', color: '#94A3B8' }}>
+                    <span style={{ fontSize: '12px', color: '#475569', fontWeight: '500' }}>
                       {entry.name} ({entry.value})
                     </span>
                   </div>

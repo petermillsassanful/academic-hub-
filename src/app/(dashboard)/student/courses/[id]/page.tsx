@@ -2,19 +2,18 @@ import { redirect, notFound } from 'next/navigation'
 import { getUser } from '@/lib/auth'
 import { createClient } from '@/lib/supabase/server'
 import type { Metadata } from 'next'
-import { CourseTabBar } from '@/components/courses/CourseTabBar'
-import { MaterialsTab } from './tabs/MaterialsTab'
-import { LecturesTab } from './tabs/LecturesTab'
-import { StudentAssignmentsTab } from './tabs/StudentAssignmentsTab'
-import { GradesTab } from './tabs/GradesTab'
-import Link from 'next/link'
-import type { Course, CourseMaterial, CourseRecording, Assignment, Submission } from '@/types/database'
+import { StudentCourseClient } from './StudentCourseClient'
+import type { Course, CourseMaterial, CourseRecording, Assignment, Submission, Quiz, QuizQuestion, QuizAttempt } from '@/types/database'
 
 export const dynamic = 'force-dynamic'
 
 interface PageProps {
   params: Promise<{ id: string }>
   searchParams: Promise<{ tab?: string; assignment?: string }>
+}
+
+interface QuizWithDetails extends Quiz {
+  questions?: QuizQuestion[]
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -25,11 +24,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function StudentCoursePage({ params, searchParams }: PageProps) {
-  const { id }        = await params
+  const { id } = await params
   const { tab, assignment: selectedAssignmentId } = await searchParams
-  const activeTab     = tab ?? 'lectures'
+  const activeTab = tab ?? 'materials'
 
-  // Cached — shared with layout
   const user = await getUser()
   if (!user) redirect('/login')
 
@@ -46,11 +44,13 @@ export default async function StudentCoursePage({ params, searchParams }: PagePr
 
   // ── Tab-specific data ─────────────────────────────────────────────────────────
 
-  let materials:  CourseMaterial[] = []
+  let materials: CourseMaterial[] = []
   let recordings: CourseRecording[] = []
   let assignments: Assignment[] = []
   let submissions: Submission[] = []
   let selectedAssignment: Assignment | undefined
+  let quizzes: QuizWithDetails[] = []
+  let attempts: QuizAttempt[] = []
   let grades: (Submission & { assignments: Pick<Assignment, 'title' | 'max_score'> })[] = []
 
   if (activeTab === 'materials') {
@@ -64,7 +64,6 @@ export default async function StudentCoursePage({ params, searchParams }: PagePr
   }
 
   if (activeTab === 'assignments') {
-    // Fetch assignments and student submissions in parallel
     const [aResult, sResult] = await Promise.all([
       supabase.from('assignments').select('*').eq('course_id', id).order('deadline'),
       supabase.from('submissions').select('*').eq('student_id', user.id),
@@ -72,7 +71,6 @@ export default async function StudentCoursePage({ params, searchParams }: PagePr
     assignments = (aResult.data as Assignment[]) ?? []
     const allSubs = (sResult.data as Submission[]) ?? []
 
-    // Filter submissions to only this course's assignments
     const assignIds = new Set(assignments.map((a) => a.id))
     submissions = allSubs.filter((s) => assignIds.has(s.assignment_id))
 
@@ -81,8 +79,24 @@ export default async function StudentCoursePage({ params, searchParams }: PagePr
     }
   }
 
+  if (activeTab === 'quizzes' || activeTab === 'grades') {
+    const [qResult, attResult] = await Promise.all([
+      supabase
+        .from('quizzes')
+        .select('*, questions:quiz_questions(*)')
+        .eq('course_id', id)
+        .eq('is_published', true)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('quiz_attempts')
+        .select('*')
+        .eq('student_id', user.id),
+    ])
+    quizzes = (qResult.data as unknown as QuizWithDetails[]) ?? []
+    attempts = (attResult.data as QuizAttempt[]) ?? []
+  }
+
   if (activeTab === 'grades') {
-    // Fetch graded submissions and course assignment IDs in parallel
     const [gradesResult, courseAssignsResult] = await Promise.all([
       supabase
         .from('submissions')
@@ -98,52 +112,18 @@ export default async function StudentCoursePage({ params, searchParams }: PagePr
   }
 
   return (
-    <div style={{ maxWidth: '1100px' }}>
-      {/* Back */}
-      <Link
-        href="/student"
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#64748B', textDecoration: 'none', marginBottom: '20px' }}
-      >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M19 12H5M12 5l-7 7 7 7"/>
-        </svg>
-        Back to Dashboard
-      </Link>
-
-      {/* Course header */}
-      <div className="glass-card" style={{ padding: '28px 32px', marginBottom: '28px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px', flexWrap: 'wrap' }}>
-          <span style={{
-            padding: '4px 11px', background: 'rgba(79,70,229,0.12)',
-            border: '1px solid rgba(79,70,229,0.3)', borderRadius: '7px',
-            fontSize: '12px', fontWeight: '700', color: '#818CF8', letterSpacing: '0.07em', textTransform: 'uppercase',
-          }}>{course.code}</span>
-          <span style={{ padding: '4px 10px', background: 'rgba(255,255,255,0.04)', border: '1px solid #1E293B', borderRadius: '7px', fontSize: '12px', color: '#64748B' }}>
-            {course.semester}
-          </span>
-        </div>
-        <h1 style={{ fontSize: '26px', fontWeight: '800', color: '#FFFFFF', letterSpacing: '-0.02em', lineHeight: 1.2, marginBottom: course.description ? '12px' : '0' }}>
-          {course.name}
-        </h1>
-        {course.description && (
-          <p style={{ fontSize: '14px', color: '#64748B', lineHeight: 1.7, maxWidth: '700px' }}>{course.description}</p>
-        )}
-      </div>
-
-      <CourseTabBar role="student" activeTab={activeTab} />
-
-      {activeTab === 'lectures'    && <LecturesTab recordings={recordings} />}
-      {activeTab === 'materials'   && <MaterialsTab materials={materials} />}
-      {activeTab === 'assignments' && (
-        <StudentAssignmentsTab
-          assignments={assignments}
-          submissions={submissions}
-          selectedAssignment={selectedAssignment}
-          courseId={id}
-          userId={user.id}
-        />
-      )}
-      {activeTab === 'grades'      && <GradesTab grades={grades} />}
-    </div>
+    <StudentCourseClient
+      course={course}
+      activeTab={activeTab}
+      materials={materials}
+      recordings={recordings}
+      assignments={assignments}
+      submissions={submissions}
+      selectedAssignment={selectedAssignment}
+      quizzes={quizzes}
+      attempts={attempts}
+      grades={grades}
+      userId={user.id}
+    />
   )
 }

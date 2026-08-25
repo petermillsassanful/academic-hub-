@@ -80,7 +80,7 @@ export default function SignupPage() {
   return (
     <div
       className="glass-card p-8"
-      style={{ animation: 'fadeInUp 0.4s ease forwards' }}
+      style={{ animation: 'fadeInUp 0.4s ease forwards', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.08)' }}
     >
       <style>{`
         @keyframes fadeInUp {
@@ -91,11 +91,11 @@ export default function SignupPage() {
       `}</style>
 
       <div className="mb-6">
-        <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#FFFFFF', marginBottom: '6px' }}>
+        <h1 style={{ fontSize: '22px', fontWeight: '800', color: '#0F172A', marginBottom: '4px' }}>
           Create your account
         </h1>
-        <p style={{ fontSize: '14px', color: '#64748B' }}>
-          Join Academic Hub — it&apos;s completely free
+        <p style={{ fontSize: '13px', color: '#64748B' }}>
+          Join Academic Hub — select your university role
         </p>
       </div>
 
@@ -103,7 +103,7 @@ export default function SignupPage() {
 
         {/* Role Selector */}
         <div>
-          <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#94A3B8', marginBottom: '8px' }}>
+          <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#334155', marginBottom: '8px' }}>
             I am a…
           </label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
@@ -122,7 +122,7 @@ export default function SignupPage() {
               {
                 value: 'student' as Role,
                 label: 'Student',
-                sublabel: 'Access courses & submit work',
+                sublabel: 'Access courses & CBT tests',
                 icon: (
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
@@ -138,23 +138,27 @@ export default function SignupPage() {
                   id={`role-${value}`}
                   onClick={() => setRole(value)}
                   style={{
-                    padding: '14px 12px',
-                    borderRadius: '12px',
-                    border: selected ? '2px solid #4F46E5' : '1px solid #334155',
-                    background: selected ? 'rgba(79,70,229,0.12)' : 'rgba(30,41,59,0.5)',
+                    padding: '12px 14px',
+                    borderRadius: '8px',
+                    border: selected ? '2px solid #2563EB' : '1px solid #E2E8F0',
+                    background: selected ? '#EFF6FF' : '#F8FAFC',
                     cursor: 'pointer',
-                    textAlign: 'left',
                     transition: 'all 150ms ease',
+                    textAlign: 'left',
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '6px',
+                    gap: '4px',
                   }}
                 >
-                  <span style={{ color: selected ? '#818CF8' : '#64748B' }}>{icon}</span>
-                  <span style={{ fontSize: '13px', fontWeight: '600', color: selected ? '#FFFFFF' : '#94A3B8' }}>
-                    {label}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ color: selected ? '#2563EB' : '#64748B' }}>{icon}</span>
+                    <span style={{ fontSize: '14px', fontWeight: '700', color: selected ? '#1D4ED8' : '#0F172A' }}>
+                      {label}
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '11px', color: '#64748B', lineHeight: 1.3 }}>
+                    {sublabel}
                   </span>
-                  <span style={{ fontSize: '11px', color: '#64748B', lineHeight: 1.3 }}>{sublabel}</span>
                 </button>
               )
             })}
@@ -330,7 +334,7 @@ export default function SignupPage() {
       <div style={{
         marginTop: '24px',
         paddingTop: '20px',
-        borderTop: '1px solid #1E293B',
+        borderTop: '1px solid #E2E8F0',
         textAlign: 'center',
         fontSize: '14px',
         color: '#64748B',
@@ -338,7 +342,7 @@ export default function SignupPage() {
         Already have an account?{' '}
         <Link
           href="/login"
-          style={{ color: '#818CF8', fontWeight: '500', textDecoration: 'none' }}
+          style={{ color: '#2563EB', fontWeight: '600', textDecoration: 'none' }}
           onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
           onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
         >

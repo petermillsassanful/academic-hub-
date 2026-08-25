@@ -7,80 +7,52 @@ export default function AuthLayout({
 }) {
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden"
-      style={{ background: '#0A0F1E' }}>
-      {/* Gradient orbs */}
+      style={{ background: '#F4F6F9' }}>
+      
+      {/* Subtle top branding wave or gradient */}
       <div
         aria-hidden="true"
         style={{
           position: 'absolute',
-          top: '-20%',
-          left: '-10%',
-          width: '600px',
-          height: '600px',
-          background: 'radial-gradient(circle, rgba(79,70,229,0.15) 0%, transparent 70%)',
-          pointerEvents: 'none',
-        }}
-      />
-      <div
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          bottom: '-20%',
-          right: '-10%',
-          width: '500px',
-          height: '500px',
-          background: 'radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 70%)',
-          pointerEvents: 'none',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '240px',
+          background: 'linear-gradient(180deg, #1B2559 0%, #2563EB 100%)',
+          zIndex: 0,
         }}
       />
 
-      {/* Subtle grid overlay */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          inset: 0,
-          backgroundImage: `
-            linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px)
-          `,
-          backgroundSize: '64px 64px',
-          pointerEvents: 'none',
-        }}
-      />
-
-      <div className="relative z-10 w-full max-w-md px-4">
+      <div className="relative z-10 w-full max-w-md px-4 py-8">
         {/* Logo */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <div className="inline-flex items-center gap-3 mb-2">
             <div style={{
-              width: '40px',
-              height: '40px',
-              background: 'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)',
+              width: '42px',
+              height: '42px',
+              background: '#FFFFFF',
               borderRadius: '10px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 4px 16px rgba(79,70,229,0.4)',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
             }}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 3L20 7.5V16.5L12 21L4 16.5V7.5L12 3Z" stroke="white" strokeWidth="2" strokeLinejoin="round"/>
-                <path d="M12 3V21M4 7.5L20 16.5M20 7.5L4 16.5" stroke="white" strokeWidth="1.5" strokeOpacity="0.5"/>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 3L20 7.5V16.5L12 21L4 16.5V7.5L12 3Z" stroke="#1B2559" strokeWidth="2.2" strokeLinejoin="round"/>
+                <path d="M12 3V21M4 7.5L20 16.5M20 7.5L4 16.5" stroke="#1B2559" strokeWidth="1.5" strokeOpacity="0.5"/>
               </svg>
             </div>
             <span style={{
-              fontSize: '22px',
+              fontSize: '24px',
               fontWeight: '800',
-              background: 'linear-gradient(135deg, #FFFFFF 0%, #818CF8 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
+              color: '#FFFFFF',
+              letterSpacing: '-0.02em',
             }}>
               Academic Hub
             </span>
           </div>
-          <p style={{ color: '#64748B', fontSize: '13px' }}>
-            Professional Course Management Platform
+          <p style={{ color: 'rgba(255, 255, 255, 0.85)', fontSize: '13px', margin: 0 }}>
+            University Course & Learning Management System
           </p>
         </div>
 

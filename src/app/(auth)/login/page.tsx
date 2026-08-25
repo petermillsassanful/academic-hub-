@@ -26,6 +26,7 @@ export default function LoginPage() {
   const [emailNotConfirmed, setEmailNotConfirmed] = useState(false)
   const [resendLoading, setResendLoading] = useState(false)
   const [resendSuccess, setResendSuccess] = useState(false)
+  const [showDevShortcuts, setShowDevShortcuts] = useState(false)
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
@@ -103,27 +104,102 @@ export default function LoginPage() {
   }
 
   return (
-    <div
-      className="glass-card p-8"
-      style={{
-        animation: 'fadeInUp 0.4s ease forwards',
-      }}
-    >
+    <div className="glass-card" style={{ padding: '32px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', animation: 'fadeInUp 0.4s ease forwards' }}>
       <style>{`
         @keyframes fadeInUp {
           from { opacity: 0; transform: translateY(16px); }
           to   { opacity: 1; transform: translateY(0); }
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        select option { background: #0A0F1E; color: #FFFFFF; }
       `}</style>
 
+      {/* Dev shortcuts banner — collapsed by default */}
+      <div style={{ marginBottom: '20px' }}>
+        <button
+          type="button"
+          onClick={() => setShowDevShortcuts((s) => !s)}
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '7px 12px',
+            background: '#F8FAFC',
+            border: '1px dashed #CBD5E1',
+            borderRadius: '8px',
+            color: '#64748B',
+            fontSize: '12px',
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+          }}
+        >
+          <span>⚡ Quick Fill Demo Logins</span>
+          <span style={{ fontSize: '11px' }}>{showDevShortcuts ? '▲ hide' : '▼ show'}</span>
+        </button>
+
+        {showDevShortcuts && (
+          <div style={{
+            marginTop: '8px',
+            padding: '10px 12px',
+            background: '#F8FAFC',
+            border: '1px solid #E2E8F0',
+            borderRadius: '8px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '6px',
+          }}>
+            <button
+              type="button"
+              onClick={() => {
+                setMode('lecturer')
+                setEmail('profsamuel@academichub.edu')
+                setPassword('samuel1234')
+                setError(null)
+              }}
+              style={{
+                textAlign: 'left',
+                padding: '6px 8px',
+                background: '#FFFFFF',
+                border: '1px solid #E2E8F0',
+                borderRadius: '6px',
+                fontSize: '11px',
+                color: '#1E293B',
+                cursor: 'pointer',
+              }}
+            >
+              👨‍🏫 Fill Lecturer: <strong>profsamuel@academichub.edu</strong>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMode('student')
+                setIndexNumber('PS/CSC/22/0001')
+                setPassword('kwame1234')
+                setError(null)
+              }}
+              style={{
+                textAlign: 'left',
+                padding: '6px 8px',
+                background: '#FFFFFF',
+                border: '1px solid #E2E8F0',
+                borderRadius: '6px',
+                fontSize: '11px',
+                color: '#1E293B',
+                cursor: 'pointer',
+              }}
+            >
+              🎓 Fill Student: <strong>PS/CSC/22/0001</strong>
+            </button>
+          </div>
+        )}
+      </div>
+
       <div className="mb-6">
-        <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#FFFFFF', marginBottom: '6px' }}>
-          Welcome back
+        <h1 style={{ fontSize: '22px', fontWeight: '800', color: '#0F172A', marginBottom: '4px' }}>
+          Portal Sign In
         </h1>
-        <p style={{ fontSize: '14px', color: '#64748B' }}>
-          Sign in to your account to continue
+        <p style={{ fontSize: '13px', color: '#64748B' }}>
+          Select your role and enter credentials to continue
         </p>
       </div>
 
@@ -131,7 +207,7 @@ export default function LoginPage() {
 
         {/* Mode Toggle */}
         <div>
-          <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#94A3B8', marginBottom: '8px' }}>
+          <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#334155', marginBottom: '8px' }}>
             Sign in as…
           </label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
@@ -156,9 +232,9 @@ export default function LoginPage() {
                   onClick={() => { setMode(value); setError(null); setEmailNotConfirmed(false); setResendSuccess(false) }}
                   style={{
                     padding: '10px 12px',
-                    borderRadius: '10px',
-                    border: selected ? '2px solid #4F46E5' : '1px solid #334155',
-                    background: selected ? 'rgba(79,70,229,0.12)' : 'rgba(30,41,59,0.5)',
+                    borderRadius: '8px',
+                    border: selected ? '2px solid #2563EB' : '1px solid #E2E8F0',
+                    background: selected ? '#EFF6FF' : '#F8FAFC',
                     cursor: 'pointer',
                     transition: 'all 150ms ease',
                     display: 'flex',
@@ -167,8 +243,8 @@ export default function LoginPage() {
                     gap: '8px',
                   }}
                 >
-                  <span style={{ color: selected ? '#818CF8' : '#64748B' }}>{icon}</span>
-                  <span style={{ fontSize: '13px', fontWeight: '600', color: selected ? '#FFFFFF' : '#94A3B8' }}>
+                  <span style={{ color: selected ? '#2563EB' : '#64748B' }}>{icon}</span>
+                  <span style={{ fontSize: '13px', fontWeight: '700', color: selected ? '#1D4ED8' : '#64748B' }}>
                     {label}
                   </span>
                 </button>
@@ -182,7 +258,7 @@ export default function LoginPage() {
           <div>
             <label
               htmlFor="login-email"
-              style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#94A3B8', marginBottom: '6px' }}
+              style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#334155', marginBottom: '6px' }}
             >
               Email address
             </label>
@@ -201,7 +277,7 @@ export default function LoginPage() {
           <div>
             <label
               htmlFor="login-index"
-              style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#94A3B8', marginBottom: '6px' }}
+              style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#334155', marginBottom: '6px' }}
             >
               Index Number
             </label>
@@ -223,7 +299,7 @@ export default function LoginPage() {
         <div>
           <label
             htmlFor="login-password"
-            style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#94A3B8', marginBottom: '6px' }}
+            style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#334155', marginBottom: '6px' }}
           >
             Password
           </label>
@@ -390,7 +466,7 @@ export default function LoginPage() {
       <div style={{
         marginTop: '24px',
         paddingTop: '20px',
-        borderTop: '1px solid #1E293B',
+        borderTop: '1px solid #E2E8F0',
         textAlign: 'center',
         fontSize: '14px',
         color: '#64748B',
@@ -398,11 +474,11 @@ export default function LoginPage() {
         Don&apos;t have an account?{' '}
         <Link
           href="/signup"
-          style={{ color: '#818CF8', fontWeight: '500', textDecoration: 'none' }}
+          style={{ color: '#2563EB', fontWeight: '600', textDecoration: 'none' }}
           onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
           onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
         >
-          Create one free
+          Create account
         </Link>
       </div>
     </div>

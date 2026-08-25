@@ -37,19 +37,20 @@ function RecordingRow({ recording, onDelete }: { recording: CourseRecording; onD
 
   return (
     <div style={{
-      padding: '16px',
-      background: 'rgba(255,255,255,0.02)',
-      border: '1px solid #1E293B',
+      padding: '20px',
+      background: '#FFFFFF',
+      border: '1px solid #E2E8F0',
       borderRadius: '12px',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
     }}>
       {/* Header row */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
-        <FileIcon fileType={recording.file_type} size={18} />
+        <FileIcon fileType={recording.file_type} size={20} />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFF', margin: 0 }}>
+          <p style={{ fontSize: '15px', fontWeight: '700', color: '#0F172A', margin: 0, marginBottom: '2px' }}>
             {recording.title}
           </p>
-          <p style={{ fontSize: '12px', color: '#334155', margin: 0 }}>
+          <p style={{ fontSize: '12px', color: '#64748B', margin: 0, fontWeight: '500' }}>
             {recording.file_type.toUpperCase()} · {formatBytes(recording.file_size)} ·{' '}
             {new Date(recording.uploaded_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
           </p>
@@ -60,11 +61,12 @@ function RecordingRow({ recording, onDelete }: { recording: CourseRecording; onD
             onClick={() => setConfirming(true)}
             style={{
               padding: '6px 10px',
-              background: 'rgba(239,68,68,0.06)',
-              border: '1px solid rgba(239,68,68,0.2)',
+              background: '#FEF2F2',
+              border: '1px solid #FECACA',
               borderRadius: '7px',
-              color: '#FCA5A5',
+              color: '#DC2626',
               fontSize: '12px',
+              fontWeight: '600',
               cursor: 'pointer',
               fontFamily: 'inherit',
               transition: 'all 150ms',
@@ -78,17 +80,17 @@ function RecordingRow({ recording, onDelete }: { recording: CourseRecording; onD
           </button>
         ) : (
           <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#FCA5A5' }}>Delete?</span>
+            <span style={{ fontSize: '12px', color: '#DC2626', fontWeight: '600' }}>Delete?</span>
             <button
               onClick={handleDelete}
               disabled={deleting}
-              style={{ padding: '5px 10px', background: '#EF4444', border: 'none', borderRadius: '6px', color: '#FFFFFF', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}
+              style={{ padding: '5px 10px', background: '#EF4444', border: 'none', borderRadius: '6px', color: '#FFFFFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}
             >
               {deleting ? '…' : 'Yes'}
             </button>
             <button
               onClick={() => setConfirming(false)}
-              style={{ padding: '5px 10px', background: 'transparent', border: '1px solid #334155', borderRadius: '6px', color: '#64748B', fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit' }}
+              style={{ padding: '5px 10px', background: '#F8FAFC', border: '1px solid #CBD5E1', borderRadius: '6px', color: '#475569', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}
             >
               No
             </button>
@@ -134,23 +136,23 @@ export function RecordingsTab({ courseId, recordings }: RecordingsTabProps) {
         <div style={{
           padding: '50px 30px',
           textAlign: 'center',
-          background: 'rgba(255,255,255,0.02)',
-          border: '1px dashed #1E293B',
+          background: '#FFFFFF',
+          border: '1px dashed #CBD5E1',
           borderRadius: '12px',
         }}>
           <div style={{
             width: '48px', height: '48px', margin: '0 auto 14px',
-            background: 'rgba(79,70,229,0.08)',
+            background: '#EFF6FF',
             borderRadius: '12px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" strokeWidth="1.5">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
               <polygon points="23 7 16 12 23 17 23 7"/>
               <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
             </svg>
           </div>
-          <p style={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFF', marginBottom: '6px' }}>No recordings yet</p>
-          <p style={{ fontSize: '13px', color: '#475569' }}>Upload lecture videos or audio using the zone above.</p>
+          <p style={{ fontSize: '15px', fontWeight: '700', color: '#0F172A', marginBottom: '6px' }}>No recordings yet</p>
+          <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>Upload lecture videos or audio using the zone above.</p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -159,15 +161,15 @@ export function RecordingsTab({ courseId, recordings }: RecordingsTabProps) {
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
                 <span style={{
                   padding: '3px 10px',
-                  background: 'rgba(139,92,246,0.1)',
-                  border: '1px solid rgba(139,92,246,0.2)',
-                  borderRadius: '99px',
-                  fontSize: '12px', fontWeight: '700', color: '#A78BFA',
+                  background: '#EFF6FF',
+                  border: '1px solid #BFDBFE',
+                  borderRadius: '6px',
+                  fontSize: '12px', fontWeight: '700', color: '#1D4ED8',
                 }}>
                   Week {week}
                 </span>
-                <div style={{ flex: 1, height: '1px', background: '#1E293B' }} />
-                <span style={{ fontSize: '11px', color: '#475569' }}>{items.length} recording{items.length !== 1 ? 's' : ''}</span>
+                <div style={{ flex: 1, height: '1px', background: '#E2E8F0' }} />
+                <span style={{ fontSize: '12px', color: '#64748B', fontWeight: '500' }}>{items.length} recording{items.length !== 1 ? 's' : ''}</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {items.map((r) => (

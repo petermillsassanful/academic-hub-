@@ -103,7 +103,7 @@ export function CustomPlayer({ src, type, title }: CustomPlayerProps) {
 
   return (
     <div style={{
-      background: 'rgba(255,255,255,0.03)',
+      background: '#0F172A',
       border: '1px solid #1E293B',
       borderRadius: '12px',
       overflow: 'hidden',

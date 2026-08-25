@@ -210,10 +210,10 @@ function PlaceholderContent({ tabLabel }: { tabLabel: string }) {
           <polyline points="12 6 12 12 16 14" />
         </svg>
       </div>
-      <p style={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFF', marginBottom: '6px' }}>
+      <p style={{ fontSize: '15px', fontWeight: '700', color: '#0F172A', marginBottom: '6px' }}>
         {tabLabel} — Coming Soon
       </p>
-      <p style={{ fontSize: '13px', color: '#475569', maxWidth: '300px', margin: '0 auto', lineHeight: 1.6 }}>
+      <p style={{ fontSize: '13px', color: '#64748B', maxWidth: '300px', margin: '0 auto', lineHeight: 1.6 }}>
         This section will be available in a later phase of Academic Hub.
       </p>
     </div>

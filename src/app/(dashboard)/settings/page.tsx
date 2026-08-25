@@ -11,7 +11,6 @@ export const metadata: Metadata = {
 }
 
 export default async function SettingsPage() {
-  // Cached — shared with the (dashboard) layout guard, no extra network call.
   const user = await getUser()
   if (!user) redirect('/login')
 
@@ -19,14 +18,14 @@ export default async function SettingsPage() {
   if (!profile) redirect('/login')
 
   return (
-    <div>
+    <div style={{ maxWidth: '720px' }}>
       <h1
         style={{
-          fontSize: '24px',
+          fontSize: '26px',
           fontWeight: 800,
-          color: '#FFFFFF',
+          color: '#0F172A',
           letterSpacing: '-0.02em',
-          marginBottom: '4px',
+          marginBottom: '6px',
         }}
       >
         Settings

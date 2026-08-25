@@ -10,7 +10,8 @@ import { AssignmentsTab, type AssignmentWithCount } from './tabs/AssignmentsTab'
 import { StudentsTab } from './tabs/StudentsTab'
 import { AnalyticsTab } from './tabs/AnalyticsTab'
 import { type SubmissionWithProfile } from './tabs/GradingPanel'
-import type { Course, CourseMaterial, CourseRecording, Assignment, Submission, Profile } from '@/types/database'
+import { QuizzesTab, type QuizWithStats } from './tabs/QuizzesTab'
+import type { Course, CourseMaterial, CourseRecording, Assignment, Submission, Profile, Quiz, QuizQuestion, QuizAttempt } from '@/types/database'
 
 export const dynamic = 'force-dynamic'
 
@@ -62,6 +63,7 @@ export default async function AdminCoursePage({ params, searchParams }: PageProp
   let assignmentsWithCounts: AssignmentWithCount[] = []
   let selectedAssignment: Assignment | undefined
   let submissions:        SubmissionWithProfile[]  = []
+  let quizzesWithStats:   QuizWithStats[]          = []
   let studentsTabData: { students: Profile[]; assignments: Assignment[]; submissions: Submission[] } | undefined
   let analyticsTabData: { students: Profile[]; assignments: Assignment[]; submissions: Submission[] } | undefined
 
@@ -100,6 +102,41 @@ export default async function AdminCoursePage({ params, searchParams }: PageProp
           .order('submitted_at', { ascending: false })
         submissions = (subData as SubmissionWithProfile[]) ?? []
       }
+    }
+  }
+
+  if (activeTab === 'quizzes') {
+    const { data: quizData } = await supabase
+      .from('quizzes')
+      .select('*')
+      .eq('course_id', id)
+      .order('created_at', { ascending: false })
+
+    const allQuizzes = (quizData as Quiz[]) ?? []
+    const quizIds = allQuizzes.map((q) => q.id)
+
+    if (quizIds.length > 0) {
+      const [questionsRes, attemptsRes] = await Promise.all([
+        supabase.from('quiz_questions').select('*').in('quiz_id', quizIds).order('order_index'),
+        supabase.from('quiz_attempts').select('*, student:profiles!student_id(full_name, email, index_number)').in('quiz_id', quizIds),
+      ])
+
+      const allQuestions = (questionsRes.data as QuizQuestion[]) ?? []
+      const allAttempts = (attemptsRes.data as any[]) ?? []
+
+      quizzesWithStats = allQuizzes.map((quiz) => {
+        const qList = allQuestions.filter((q) => q.quiz_id === quiz.id)
+        const aList = allAttempts.filter((a) => a.quiz_id === quiz.id)
+        return {
+          ...quiz,
+          questionCount: qList.length,
+          attemptCount: aList.length,
+          questions: qList,
+          attempts: aList,
+        }
+      })
+    } else {
+      quizzesWithStats = []
     }
   }
 
@@ -177,6 +214,12 @@ export default async function AdminCoursePage({ params, searchParams }: PageProp
           assignments={assignmentsWithCounts}
           selectedAssignment={selectedAssignment}
           submissions={submissions}
+        />
+      )}
+      {activeTab === 'quizzes' && (
+        <QuizzesTab
+          courseId={id}
+          quizzes={quizzesWithStats}
         />
       )}
       {activeTab === 'students' && studentsTabData && (

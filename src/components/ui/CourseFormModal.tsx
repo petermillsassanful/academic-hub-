@@ -1,91 +1,106 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Modal } from '@/components/ui/Modal'
-import type { Course, Database } from '@/types/database'
-
-type CourseUpdate = Database['public']['Tables']['courses']['Update']
-type CourseInsert = Database['public']['Tables']['courses']['Insert']
+import { Modal } from './Modal'
+import type { Course } from '@/types/database'
 
 interface CourseFormModalProps {
   isOpen: boolean
   onClose: () => void
   userId: string
-  course?: Course
+  courseToEdit?: Course | null
+  course?: Course | null
 }
 
-const LEVELS = ['100', '200', '300', '400', '500', '600']
+const LEVELS = ['100', '200', '300', '400']
 const SEMESTERS = ['Semester 1', 'Semester 2']
 
-function parseLevelFromSemester(semester: string): string {
-  const match = semester.match(/Level (\d+)/)
-  return match ? match[1] : '100'
-}
-
-function parseSemesterFromSemester(semester: string): string {
-  if (semester.includes('Semester 2')) return 'Semester 2'
-  return 'Semester 1'
-}
-
-export function CourseFormModal({ isOpen, onClose, userId, course }: CourseFormModalProps) {
+export function CourseFormModal({
+  isOpen,
+  onClose,
+  userId,
+  courseToEdit,
+  course,
+}: CourseFormModalProps) {
+  const activeCourse = courseToEdit || course
   const router = useRouter()
-  const isEditing = !!course
+  const supabase = createClient()
+  const isEditing = !!activeCourse
 
   const [form, setForm] = useState({
-    name: course?.name ?? '',
-    code: course?.code ?? '',
-    description: course?.description ?? '',
-    level: course ? (course.level || parseLevelFromSemester(course.semester)) : LEVELS[0],
-    semester: course ? parseSemesterFromSemester(course.semester) : SEMESTERS[0],
+    name: '',
+    code: '',
+    description: '',
+    level: '100',
+    semester: 'Semester 1',
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const handleClose = () => {
+  useEffect(() => {
+    if (activeCourse) {
+      setForm({
+        name: activeCourse.name,
+        code: activeCourse.code,
+        description: activeCourse.description ?? '',
+        level: activeCourse.level,
+        semester: activeCourse.semester,
+      })
+    } else {
+      setForm({
+        name: '',
+        code: '',
+        description: '',
+        level: '100',
+        semester: 'Semester 1',
+      })
+    }
     setError(null)
-    setLoading(false)
+  }, [activeCourse, isOpen])
+
+  function handleClose() {
+    setError(null)
     onClose()
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!form.name.trim() || !form.code.trim()) return
+    if (!form.name.trim() || !form.code.trim()) {
+      setError('Please fill in all required fields.')
+      return
+    }
 
     setLoading(true)
     setError(null)
 
-    const supabase = createClient()
-    const semesterDisplay = `Level ${form.level} — ${form.semester}`
-
     try {
-      if (isEditing) {
-        const updatePayload: CourseUpdate = {
-          name: form.name.trim(),
-          code: form.code.trim().toUpperCase(),
-          description: form.description.trim() || null,
-          level: form.level,
-          semester: semesterDisplay,
-        }
+      if (isEditing && courseToEdit) {
         const { error: updateError } = await supabase
           .from('courses')
-          .update(updatePayload as never)
-          .eq('id', course.id)
-          .eq('created_by', userId)
+          .update({
+            name: form.name.trim(),
+            code: form.code.trim().toUpperCase(),
+            description: form.description.trim() || null,
+            level: form.level,
+            semester: form.semester,
+          } as never)
+          .eq('id', courseToEdit.id)
 
         if (updateError) throw updateError
-        router.refresh()
         handleClose()
+        router.refresh()
       } else {
-        const insertPayload: CourseInsert = {
+        const insertPayload = {
           name: form.name.trim(),
           code: form.code.trim().toUpperCase(),
           description: form.description.trim() || null,
           level: form.level,
-          semester: semesterDisplay,
+          semester: form.semester,
           created_by: userId,
         }
+
         const { data, error: insertError } = await supabase
           .from('courses')
           .insert(insertPayload as never)
@@ -109,10 +124,10 @@ export function CourseFormModal({ isOpen, onClose, userId, course }: CourseFormM
   const inputStyle: React.CSSProperties = {
     width: '100%',
     padding: '10px 14px',
-    background: 'rgba(15, 23, 42, 0.8)',
-    border: '1px solid #334155',
-    borderRadius: '10px',
-    color: '#FFFFFF',
+    background: '#FFFFFF',
+    border: '1px solid #CBD5E1',
+    borderRadius: '8px',
+    color: '#0F172A',
     fontSize: '14px',
     fontFamily: 'inherit',
     outline: 'none',
@@ -122,8 +137,8 @@ export function CourseFormModal({ isOpen, onClose, userId, course }: CourseFormM
   const labelStyle: React.CSSProperties = {
     display: 'block',
     fontSize: '13px',
-    fontWeight: '500',
-    color: '#94A3B8',
+    fontWeight: '600',
+    color: '#334155',
     marginBottom: '6px',
   }
 
@@ -144,8 +159,8 @@ export function CourseFormModal({ isOpen, onClose, userId, course }: CourseFormM
             placeholder="e.g. Introduction to Computer Science"
             required
             style={inputStyle}
-            onFocus={(e) => { e.currentTarget.style.borderColor = '#4F46E5' }}
-            onBlur={(e) => { e.currentTarget.style.borderColor = '#334155' }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = '#2563EB' }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = '#CBD5E1' }}
           />
         </div>
 
@@ -159,8 +174,8 @@ export function CourseFormModal({ isOpen, onClose, userId, course }: CourseFormM
             placeholder="e.g. CS101"
             required
             style={{ ...inputStyle, textTransform: 'uppercase', letterSpacing: '0.05em' }}
-            onFocus={(e) => { e.currentTarget.style.borderColor = '#4F46E5' }}
-            onBlur={(e) => { e.currentTarget.style.borderColor = '#334155' }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = '#2563EB' }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = '#CBD5E1' }}
           />
         </div>
 
@@ -173,11 +188,11 @@ export function CourseFormModal({ isOpen, onClose, userId, course }: CourseFormM
               onChange={(e) => setForm(f => ({ ...f, level: e.target.value }))}
               required
               style={{ ...inputStyle, cursor: 'pointer' }}
-              onFocus={(e) => { e.currentTarget.style.borderColor = '#4F46E5' }}
-              onBlur={(e) => { e.currentTarget.style.borderColor = '#334155' }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = '#2563EB' }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = '#CBD5E1' }}
             >
               {LEVELS.map(l => (
-                <option key={l} value={l} style={{ background: '#0A0F1E' }}>Level {l}</option>
+                <option key={l} value={l}>Level {l}</option>
               ))}
             </select>
           </div>
@@ -188,11 +203,11 @@ export function CourseFormModal({ isOpen, onClose, userId, course }: CourseFormM
               onChange={(e) => setForm(f => ({ ...f, semester: e.target.value }))}
               required
               style={{ ...inputStyle, cursor: 'pointer' }}
-              onFocus={(e) => { e.currentTarget.style.borderColor = '#4F46E5' }}
-              onBlur={(e) => { e.currentTarget.style.borderColor = '#334155' }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = '#2563EB' }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = '#CBD5E1' }}
             >
               {SEMESTERS.map(s => (
-                <option key={s} value={s} style={{ background: '#0A0F1E' }}>{s}</option>
+                <option key={s} value={s}>{s}</option>
               ))}
             </select>
           </div>
@@ -200,15 +215,15 @@ export function CourseFormModal({ isOpen, onClose, userId, course }: CourseFormM
 
         {/* Description */}
         <div>
-          <label style={labelStyle}>Description <span style={{ color: '#475569' }}>(optional)</span></label>
+          <label style={labelStyle}>Description <span style={{ color: '#64748B' }}>(optional)</span></label>
           <textarea
             value={form.description}
             onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))}
             placeholder="What will students learn in this course?"
             rows={3}
             style={{ ...inputStyle, resize: 'vertical', minHeight: '80px' }}
-            onFocus={(e) => { e.currentTarget.style.borderColor = '#4F46E5' }}
-            onBlur={(e) => { e.currentTarget.style.borderColor = '#334155' }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = '#2563EB' }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = '#CBD5E1' }}
           />
         </div>
 
@@ -216,24 +231,32 @@ export function CourseFormModal({ isOpen, onClose, userId, course }: CourseFormM
         {error && (
           <div style={{
             padding: '10px 14px',
-            background: 'rgba(239,68,68,0.1)',
-            border: '1px solid rgba(239,68,68,0.3)',
+            background: '#FEF2F2',
+            border: '1px solid #FECACA',
             borderRadius: '8px',
             fontSize: '13px',
-            color: '#FCA5A5',
+            color: '#DC2626',
           }}>
             {error}
           </div>
         )}
 
         {/* Actions */}
-        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', paddingTop: '4px' }}>
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', paddingTop: '8px', borderTop: '1px solid #E2E8F0' }}>
           <button
             type="button"
             onClick={handleClose}
             disabled={loading}
-            className="btn-ghost"
-            style={{ padding: '10px 20px', fontSize: '14px' }}
+            style={{
+              padding: '9px 18px',
+              background: '#F8FAFC',
+              border: '1px solid #CBD5E1',
+              borderRadius: '8px',
+              color: '#475569',
+              fontSize: '13px',
+              fontWeight: '600',
+              cursor: 'pointer',
+            }}
           >
             Cancel
           </button>
@@ -241,7 +264,7 @@ export function CourseFormModal({ isOpen, onClose, userId, course }: CourseFormM
             type="submit"
             disabled={loading || !form.name.trim() || !form.code.trim()}
             className="btn-primary"
-            style={{ padding: '10px 24px', fontSize: '14px', opacity: loading ? 0.7 : 1 }}
+            style={{ padding: '9px 22px', fontSize: '13px', opacity: loading ? 0.7 : 1 }}
           >
             {loading ? (
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -254,11 +277,6 @@ export function CourseFormModal({ isOpen, onClose, userId, course }: CourseFormM
           </button>
         </div>
       </form>
-
-      <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-        select option { background: #0A0F1E; color: #FFFFFF; }
-      `}</style>
     </Modal>
   )
 }

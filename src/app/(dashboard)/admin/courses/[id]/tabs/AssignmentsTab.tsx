@@ -22,14 +22,14 @@ function DeadlineBadge({ deadline }: { deadline: string }) {
     day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
   })
   const colors = {
-    past:     { bg: 'rgba(239,68,68,0.08)',   border: 'rgba(239,68,68,0.2)',   text: '#FCA5A5' },
-    soon:     { bg: 'rgba(245,158,11,0.08)',  border: 'rgba(245,158,11,0.2)',  text: '#FCD34D' },
-    upcoming: { bg: 'rgba(100,116,139,0.08)', border: 'rgba(100,116,139,0.2)', text: '#94A3B8' },
+    past:     { bg: '#FEE2E2', border: '#FECACA', text: '#DC2626' },
+    soon:     { bg: '#FEF3C7', border: '#FDE68A', text: '#D97706' },
+    upcoming: { bg: '#F1F5F9', border: '#CBD5E1', text: '#475569' },
   }[status]
 
   return (
     <span style={{
-      padding: '3px 9px', borderRadius: '99px', fontSize: '11px', fontWeight: '600',
+      padding: '3px 9px', borderRadius: '6px', fontSize: '11px', fontWeight: '600',
       background: colors.bg, border: `1px solid ${colors.border}`, color: colors.text,
       whiteSpace: 'nowrap',
     }}>
@@ -57,17 +57,14 @@ interface AssignmentsTabProps {
 
 export function AssignmentsTab({ courseId, assignments, selectedAssignment, submissions }: AssignmentsTabProps) {
   const router = useRouter()
-  // useRef so createClient() is called exactly once — not on every render
   const supabaseRef = useRef(createClient())
   const [formOpen, setFormOpen]       = useState(false)
   const [gradingItem, setGradingItem] = useState<SubmissionWithProfile | null>(null)
   const [localSubs, setLocalSubs]     = useState<SubmissionWithProfile[]>(submissions ?? [])
 
-  // Optimistic save: update local state immediately, persist in background
   async function handleSaveGrade(grade: number, feedback: string | null) {
     if (!gradingItem) return
     const now = new Date().toISOString()
-    // 1. Optimistic update — grade appears instantly in the table
     const savedId = gradingItem.id
     setLocalSubs((prev) =>
       prev.map((s) =>
@@ -77,11 +74,23 @@ export function AssignmentsTab({ courseId, assignments, selectedAssignment, subm
       )
     )
     setGradingItem(null)
-    // 2. Background persist
     await supabaseRef.current
       .from('submissions')
       .update({ grade, feedback, graded_at: now } as never)
       .eq('id', savedId)
+
+    const targetSub = localSubs.find((s) => s.id === savedId)
+    if (targetSub && selectedAssignment) {
+      await supabaseRef.current.from('notifications').insert({
+        user_id: targetSub.student_id,
+        course_id: selectedAssignment.course_id,
+        title: 'Assignment Graded',
+        message: `Your submission for '${selectedAssignment.title}' was marked: ${grade}/${selectedAssignment.max_score} pts.`,
+        type: 'grade',
+        link: `/student/courses/${selectedAssignment.course_id}?tab=grades`,
+        is_read: false,
+      } as never)
+    }
   }
 
   // ── Detail view ──────────────────────────────────────────────────────────────
@@ -94,125 +103,119 @@ export function AssignmentsTab({ courseId, assignments, selectedAssignment, subm
             onClick={() => router.push('?tab=assignments')}
             style={{
               display: 'inline-flex', alignItems: 'center', gap: '6px',
-              background: 'transparent', border: 'none', color: '#64748B',
-              fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit',
+              background: 'transparent', border: 'none', color: '#1B2559',
+              fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit',
               marginBottom: '16px', padding: 0,
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = '#94A3B8' }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = '#64748B' }}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M19 12H5M12 5l-7 7 7 7"/>
-            </svg>
-            Back to assignments
+            ← Back to Assignments
           </button>
 
           <div style={{
-            padding: '20px 24px',
-            background: 'rgba(255,255,255,0.02)',
-            border: '1px solid #1E293B',
+            background: '#FFFFFF',
+            border: '1px solid #E2E8F0',
             borderRadius: '12px',
+            padding: '24px',
+            marginBottom: '24px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
           }}>
-            <h2 style={{ fontSize: '20px', fontWeight: '800', color: '#FFFFFF', marginBottom: '8px' }}>
-              {selectedAssignment.title}
-            </h2>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-              <DeadlineBadge deadline={selectedAssignment.deadline} />
-              <span style={{ fontSize: '12px', color: '#475569' }}>Max {selectedAssignment.max_score} pts</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', marginBottom: '14px' }}>
+              <div>
+                <h1 style={{ fontSize: '20px', fontWeight: '800', color: '#0F172A', marginBottom: '6px' }}>
+                  {selectedAssignment.title}
+                </h1>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <DeadlineBadge deadline={selectedAssignment.deadline} />
+                  <span style={{ fontSize: '12px', color: '#64748B', fontWeight: '500' }}>
+                    Max Score: {selectedAssignment.max_score} pts
+                  </span>
+                </div>
+              </div>
             </div>
+
             {selectedAssignment.instructions && (
-              <p style={{
-                fontSize: '13px', color: '#64748B', lineHeight: 1.7,
-                marginTop: '12px', padding: '12px', background: 'rgba(255,255,255,0.02)',
-                border: '1px solid #1E293B', borderRadius: '8px',
-                whiteSpace: 'pre-wrap',
+              <div style={{
+                fontSize: '14px', color: '#334155', lineHeight: 1.6,
+                padding: '16px', background: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0',
               }}>
                 {selectedAssignment.instructions}
-              </p>
+              </div>
             )}
           </div>
-        </div>
 
-        {/* Submissions table */}
-        <div>
-          <p style={{ fontSize: '13px', fontWeight: '600', color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '12px' }}>
-            Submissions ({localSubs.length})
-          </p>
+          {/* Submissions Section */}
+          <h2 style={{ fontSize: '16px', fontWeight: '700', color: '#0F172A', marginBottom: '14px' }}>
+            Student Submissions ({localSubs.length})
+          </h2>
 
           {localSubs.length === 0 ? (
             <div style={{
-              padding: '40px', textAlign: 'center',
-              background: 'rgba(255,255,255,0.02)',
-              border: '1px dashed #1E293B', borderRadius: '12px',
+              padding: '40px 24px', textAlign: 'center', background: '#FFFFFF',
+              border: '1px solid #E2E8F0', borderRadius: '12px',
             }}>
-              <p style={{ fontSize: '14px', color: '#475569' }}>No submissions yet</p>
+              <p style={{ fontSize: '14px', color: '#64748B', margin: 0 }}>No submissions received yet.</p>
             </div>
           ) : (
-            <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
             <div style={{
-              background: 'rgba(255,255,255,0.02)',
-              border: '1px solid #1E293B', borderRadius: '12px', overflow: 'hidden',
-              minWidth: '540px',
+              background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', overflow: 'hidden',
             }}>
-              {/* Table header */}
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 140px 80px 80px 120px',
-                padding: '10px 16px',
-                background: 'rgba(255,255,255,0.02)',
-                borderBottom: '1px solid #1E293B',
-              }}>
-                {['Student', 'Submitted At', 'Type', 'Grade', 'Action'].map((h) => (
-                  <span key={h} style={{ fontSize: '11px', fontWeight: '700', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{h}</span>
-                ))}
-              </div>
-
-              {localSubs.map((s) => {
-                const name = s.profiles.full_name ?? s.profiles.email
-                const type = s.file_url ? (s.written_answer ? 'File + Text' : 'File') : 'Text'
-                const graded = s.grade !== null
-
-                return (
-                  <div
-                    key={s.id}
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: '1fr 140px 80px 80px 120px',
-                      padding: '12px 16px',
-                      borderBottom: '1px solid #1E293B',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <div>
-                      <p style={{ fontSize: '13px', fontWeight: '600', color: '#FFFFFF', margin: 0 }}>{name}</p>
-                      <p style={{ fontSize: '11px', color: '#475569', margin: 0 }}>{s.profiles.email}</p>
-                    </div>
-                    <span style={{ fontSize: '12px', color: '#64748B' }}>
-                      {new Date(s.submitted_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
-                    </span>
-                    <span style={{ fontSize: '12px', color: '#64748B' }}>{type}</span>
-                    <span style={{ fontSize: '13px', fontWeight: '700', color: graded ? '#6EE7B7' : '#475569' }}>
-                      {graded ? `${s.grade}/${selectedAssignment.max_score}` : '—'}
-                    </span>
-                    <button
-                      onClick={() => setGradingItem(s)}
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                {localSubs.map((sub) => {
+                  const graded = sub.grade !== null && sub.grade !== undefined
+                  return (
+                    <div
+                      key={sub.id}
                       style={{
-                        padding: '6px 14px',
-                        background: graded ? 'rgba(16,185,129,0.08)' : 'rgba(79,70,229,0.1)',
-                        border: `1px solid ${graded ? 'rgba(16,185,129,0.25)' : 'rgba(79,70,229,0.25)'}`,
-                        borderRadius: '7px',
-                        color: graded ? '#6EE7B7' : '#818CF8',
-                        fontSize: '12px', fontWeight: '600',
-                        cursor: 'pointer', fontFamily: 'inherit',
-                        width: 'fit-content',
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        padding: '16px 20px', borderBottom: '1px solid #F1F5F9', gap: '16px',
                       }}
                     >
-                      {graded ? 'Edit Grade' : 'Grade'}
-                    </button>
-                  </div>
-                )
-              })}
-            </div>
+                      <div>
+                        <p style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A', margin: 0, marginBottom: '3px' }}>
+                          {sub.profiles?.full_name ?? 'Unknown Student'}
+                        </p>
+                        <p style={{ fontSize: '12px', color: '#64748B', margin: 0 }}>
+                          {sub.profiles?.index_number ? `Index: ${sub.profiles.index_number} · ` : ''}
+                          Submitted {new Date(sub.submitted_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        {graded ? (
+                          <span style={{
+                            padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: '700',
+                            background: '#ECFDF5', border: '1px solid #A7F3D0', color: '#059669',
+                          }}>
+                            {sub.grade} / {selectedAssignment.max_score} pts
+                          </span>
+                        ) : (
+                          <span style={{
+                            padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: '600',
+                            background: '#FFFBEB', border: '1px solid #FDE68A', color: '#D97706',
+                          }}>
+                            Ungraded
+                          </span>
+                        )}
+
+                        <button
+                          onClick={() => setGradingItem(sub)}
+                          style={{
+                            padding: '6px 14px',
+                            background: '#1B2559',
+                            border: 'none',
+                            borderRadius: '6px',
+                            color: '#FFFFFF',
+                            fontSize: '12px', fontWeight: '600',
+                            cursor: 'pointer', fontFamily: 'inherit',
+                          }}
+                        >
+                          {graded ? 'Edit Grade' : 'Grade'}
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
           )}
         </div>
@@ -235,45 +238,44 @@ export function AssignmentsTab({ courseId, assignments, selectedAssignment, subm
     <div style={{ animation: 'tabFadeIn 200ms ease' }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2 style={{ fontSize: '16px', fontWeight: '700', color: '#FFFFFF' }}>
-          Assignments <span style={{ fontWeight: '400', color: '#475569', fontSize: '14px' }}>({assignments.length})</span>
+        <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#0F172A' }}>
+          Course Assignments <span style={{ fontWeight: '500', color: '#64748B', fontSize: '14px' }}>({assignments.length})</span>
         </h2>
         <button
           onClick={() => setFormOpen(true)}
+          className="btn-primary"
           style={{
             display: 'flex', alignItems: 'center', gap: '7px',
             padding: '9px 18px',
-            minHeight: '44px',
-            background: '#4F46E5', border: 'none', borderRadius: '9px',
-            color: '#FFFFFF', fontSize: '13px', fontWeight: '600',
-            cursor: 'pointer', fontFamily: 'inherit',
+            minHeight: '40px',
+            fontSize: '13px', fontWeight: '600',
           }}
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
-          New Assignment
+          + New Assignment
         </button>
       </div>
 
       {assignments.length === 0 ? (
         <div style={{
-          padding: '50px 30px', textAlign: 'center',
-          background: 'rgba(255,255,255,0.02)',
-          border: '1px dashed #1E293B', borderRadius: '12px',
+          padding: '48px 30px', textAlign: 'center',
+          background: '#FFFFFF',
+          border: '1px solid #E2E8F0', borderRadius: '12px',
         }}>
           <div style={{
-            width: '48px', height: '48px', margin: '0 auto 14px',
-            background: 'rgba(79,70,229,0.08)', borderRadius: '12px',
+            width: '48px', height: '48px', margin: '0 auto 12px',
+            background: '#EFF6FF', borderRadius: '12px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" strokeWidth="1.5">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
               <path d="M9 11l3 3L22 4"/>
               <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
             </svg>
           </div>
-          <p style={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFF', marginBottom: '6px' }}>No assignments yet</p>
-          <p style={{ fontSize: '13px', color: '#475569' }}>Click &quot;New Assignment&quot; to create your first.</p>
+          <p style={{ fontSize: '15px', fontWeight: '700', color: '#0F172A', marginBottom: '4px' }}>No assignments yet</p>
+          <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>Click &quot;+ New Assignment&quot; to publish your first exercise or coursework.</p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -283,43 +285,44 @@ export function AssignmentsTab({ courseId, assignments, selectedAssignment, subm
               onClick={() => router.push(`?tab=assignments&assignment=${a.id}`)}
               style={{
                 padding: '16px 20px',
-                background: 'rgba(255,255,255,0.02)',
-                border: '1px solid #1E293B',
-                borderRadius: '12px',
+                background: '#FFFFFF',
+                border: '1px solid #E2E8F0',
+                borderRadius: '10px',
                 cursor: 'pointer',
-                transition: 'border-color 150ms',
+                transition: 'all 150ms ease',
                 display: 'flex', alignItems: 'center', gap: '16px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#4F46E5' }}
-              onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#1E293B' }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.03)' }}
             >
               <div style={{
                 width: '40px', height: '40px', flexShrink: 0,
-                background: 'rgba(79,70,229,0.1)',
-                border: '1px solid rgba(79,70,229,0.2)',
-                borderRadius: '10px',
+                background: '#EFF6FF',
+                border: '1px solid #BFDBFE',
+                borderRadius: '8px',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#818CF8" strokeWidth="1.8">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
                   <path d="M9 11l3 3L22 4"/>
                   <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
                 </svg>
               </div>
 
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: '15px', fontWeight: '700', color: '#FFFFFF', marginBottom: '6px' }}>{a.title}</p>
+                <p style={{ fontSize: '15px', fontWeight: '700', color: '#0F172A', marginBottom: '4px' }}>{a.title}</p>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                   <DeadlineBadge deadline={a.deadline} />
-                  <span style={{ fontSize: '11px', color: '#475569' }}>Max {a.max_score} pts</span>
+                  <span style={{ fontSize: '12px', color: '#64748B' }}>Max {a.max_score} pts</span>
                 </div>
               </div>
 
               <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                <p style={{ fontSize: '18px', fontWeight: '800', color: '#FFFFFF' }}>{a.submissionCount}</p>
-                <p style={{ fontSize: '11px', color: '#475569' }}>submitted</p>
+                <p style={{ fontSize: '17px', fontWeight: '800', color: '#0F172A', margin: 0 }}>{a.submissionCount}</p>
+                <p style={{ fontSize: '11px', color: '#64748B', margin: 0 }}>submitted</p>
               </div>
 
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2.5">
                 <path d="M9 18l6-6-6-6"/>
               </svg>
             </div>

@@ -3,8 +3,8 @@
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { useCallback } from 'react'
 
-export type AdminTab = 'content' | 'recordings' | 'assignments' | 'students' | 'analytics'
-export type StudentTab = 'lectures' | 'materials' | 'assignments' | 'grades'
+export type AdminTab = 'content' | 'recordings' | 'assignments' | 'quizzes' | 'students' | 'analytics'
+export type StudentTab = 'lectures' | 'materials' | 'assignments' | 'quizzes' | 'grades'
 
 type Tab = { id: string; label: string; icon: React.ReactNode }
 
@@ -23,6 +23,11 @@ const ADMIN_TABS: Tab[] = [
     id: 'assignments',
     label: 'Assignments',
     icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>,
+  },
+  {
+    id: 'quizzes',
+    label: 'Quizzes / CBT',
+    icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
   },
   {
     id: 'students',
@@ -51,6 +56,11 @@ const STUDENT_TABS: Tab[] = [
     id: 'assignments',
     label: 'Assignments',
     icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>,
+  },
+  {
+    id: 'quizzes',
+    label: 'Quizzes / CBT',
+    icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
   },
   {
     id: 'grades',
@@ -82,9 +92,9 @@ export function CourseTabBar({ role, activeTab }: CourseTabBarProps) {
     <>
       <div style={{
         display: 'flex',
-        gap: '2px',
-        borderBottom: '1px solid #1E293B',
-        marginBottom: '28px',
+        gap: '4px',
+        borderBottom: '2px solid #E2E8F0',
+        marginBottom: '24px',
         overflowX: 'auto',
       }}>
         {tabs.map((tab) => {
@@ -98,24 +108,24 @@ export function CourseTabBar({ role, activeTab }: CourseTabBarProps) {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '7px',
-                padding: '10px 16px',
+                padding: '10px 18px',
                 minHeight: '44px',   /* 44px tap target */
                 background: 'transparent',
                 border: 'none',
-                borderBottom: isActive ? '2px solid #4F46E5' : '2px solid transparent',
-                color: isActive ? '#FFFFFF' : '#64748B',
+                borderBottom: isActive ? '3px solid #1B2559' : '3px solid transparent',
+                color: isActive ? '#1B2559' : '#64748B',
                 fontSize: '13px',
-                fontWeight: isActive ? '600' : '500',
+                fontWeight: isActive ? '700' : '500',
                 cursor: 'pointer',
                 fontFamily: 'inherit',
                 transition: 'all 150ms ease',
                 whiteSpace: 'nowrap',
-                marginBottom: '-1px',
+                marginBottom: '-2px',
               }}
-              onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = '#94A3B8' }}
-              onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = '#64748B' }}
+              onMouseEnter={(e) => { if (!isActive) { e.currentTarget.style.color = '#0F172A'; e.currentTarget.style.borderBottomColor = '#CBD5E1' } }}
+              onMouseLeave={(e) => { if (!isActive) { e.currentTarget.style.color = '#64748B'; e.currentTarget.style.borderBottomColor = 'transparent' } }}
             >
-              <span style={{ color: isActive ? '#818CF8' : 'inherit' }}>{tab.icon}</span>
+              <span style={{ color: isActive ? '#1B2559' : 'inherit' }}>{tab.icon}</span>
               {tab.label}
             </button>
           )

@@ -76,9 +76,9 @@ export function DeleteConfirmDialog({
           </svg>
         </div>
 
-        <p style={{ fontSize: '14px', color: '#94A3B8', lineHeight: 1.6 }}>
+        <p style={{ fontSize: '14px', color: '#475569', lineHeight: 1.6 }}>
           This will permanently delete{' '}
-          <strong style={{ color: '#FFFFFF' }}>{courseName}</strong>
+          <strong style={{ color: '#0F172A' }}>{courseName}</strong>
           {' '}and all its content. This cannot be undone.
         </p>
 
@@ -86,12 +86,12 @@ export function DeleteConfirmDialog({
           display: 'inline-block',
           marginTop: '12px',
           padding: '4px 10px',
-          background: 'rgba(239,68,68,0.08)',
-          border: '1px solid rgba(239,68,68,0.2)',
+          background: '#FEF2F2',
+          border: '1px solid #FECACA',
           borderRadius: '6px',
           fontSize: '12px',
-          fontWeight: '600',
-          color: '#FCA5A5',
+          fontWeight: '700',
+          color: '#DC2626',
           letterSpacing: '0.05em',
         }}>
           {courseCode}

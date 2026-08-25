@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Modal } from '@/components/ui/Modal'
 import { getFileExtension, formatBytes } from '@/components/ui/FileIcon'
+import { createCourseNotification } from '@/lib/notifications'
 
 type UploadType = 'material' | 'recording'
 
@@ -111,6 +112,25 @@ export function MetadataModal({ file, courseId, type, onClose }: MetadataModalPr
       const { error: dbError } = await supabase.from(table).insert(payload as never)
       if (dbError) throw dbError
 
+      // Send real notification to all enrolled students
+      if (type === 'material') {
+        await createCourseNotification({
+          courseId,
+          title: 'New Slide / Course Material',
+          message: `New lecture material '${title.trim()}' was uploaded for Week ${weekNumber}.`,
+          type: 'material',
+          link: `/student/courses/${courseId}?tab=content`,
+        })
+      } else {
+        await createCourseNotification({
+          courseId,
+          title: 'New Lecture Recording',
+          message: `New recording '${title.trim()}' was uploaded for Week ${weekNumber}.`,
+          type: 'recording',
+          link: `/student/courses/${courseId}?tab=recordings`,
+        })
+      }
+
       setDone(true)
       router.refresh()
       setTimeout(() => {
@@ -128,18 +148,18 @@ export function MetadataModal({ file, courseId, type, onClose }: MetadataModalPr
   const labelStyle: React.CSSProperties = {
     display: 'block',
     fontSize: '13px',
-    fontWeight: '500',
-    color: '#94A3B8',
+    fontWeight: '600',
+    color: '#334155',
     marginBottom: '6px',
   }
 
   const inputStyle: React.CSSProperties = {
     width: '100%',
     padding: '10px 12px',
-    background: 'rgba(255,255,255,0.04)',
-    border: '1px solid #334155',
-    borderRadius: '9px',
-    color: '#FFFFFF',
+    background: '#FFFFFF',
+    border: '1px solid #CBD5E1',
+    borderRadius: '8px',
+    color: '#0F172A',
     fontSize: '14px',
     fontFamily: 'inherit',
     outline: 'none',
@@ -154,23 +174,23 @@ export function MetadataModal({ file, courseId, type, onClose }: MetadataModalPr
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {/* File info */}
         <div style={{
-          padding: '10px 14px',
-          background: 'rgba(79,70,229,0.06)',
-          border: '1px solid rgba(79,70,229,0.2)',
-          borderRadius: '9px',
+          padding: '12px 14px',
+          background: '#EFF6FF',
+          border: '1px solid #BFDBFE',
+          borderRadius: '8px',
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
         }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#818CF8" strokeWidth="2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
             <polyline points="14 2 14 8 20 8"/>
           </svg>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ fontSize: '13px', color: '#FFFFFF', fontWeight: '500', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <p style={{ fontSize: '13px', color: '#0F172A', fontWeight: '600', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {file.name}
             </p>
-            <p style={{ fontSize: '11px', color: '#64748B', margin: 0 }}>
+            <p style={{ fontSize: '11px', color: '#64748B', margin: 0, fontWeight: '500' }}>
               {ext.toUpperCase()} · {formatBytes(file.size)}
             </p>
           </div>
@@ -186,8 +206,8 @@ export function MetadataModal({ file, courseId, type, onClose }: MetadataModalPr
             disabled={uploading}
             placeholder="e.g. Lecture 1 — Introduction to Java"
             style={inputStyle}
-            onFocus={(e) => { e.currentTarget.style.borderColor = '#4F46E5' }}
-            onBlur={(e) => { e.currentTarget.style.borderColor = '#334155' }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = '#2563EB' }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = '#CBD5E1' }}
           />
         </div>
 
@@ -202,8 +222,8 @@ export function MetadataModal({ file, courseId, type, onClose }: MetadataModalPr
               placeholder="Brief description of this material…"
               rows={2}
               style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.5 }}
-              onFocus={(e) => { e.currentTarget.style.borderColor = '#4F46E5' }}
-              onBlur={(e) => { e.currentTarget.style.borderColor = '#334155' }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = '#2563EB' }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = '#CBD5E1' }}
             />
           </div>
         )}
@@ -219,8 +239,8 @@ export function MetadataModal({ file, courseId, type, onClose }: MetadataModalPr
             onChange={(e) => setWeekNumber(Math.max(1, parseInt(e.target.value) || 1))}
             disabled={uploading}
             style={{ ...inputStyle, width: '100px' }}
-            onFocus={(e) => { e.currentTarget.style.borderColor = '#4F46E5' }}
-            onBlur={(e) => { e.currentTarget.style.borderColor = '#334155' }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = '#2563EB' }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = '#CBD5E1' }}
           />
         </div>
 
@@ -228,10 +248,10 @@ export function MetadataModal({ file, courseId, type, onClose }: MetadataModalPr
         {error && (
           <div style={{
             padding: '10px 14px',
-            background: 'rgba(239,68,68,0.1)',
-            border: '1px solid rgba(239,68,68,0.3)',
-            borderRadius: '9px',
-            color: '#FCA5A5',
+            background: '#FEF2F2',
+            border: '1px solid #FECACA',
+            borderRadius: '8px',
+            color: '#DC2626',
             fontSize: '13px',
           }}>
             {error}
@@ -243,13 +263,13 @@ export function MetadataModal({ file, courseId, type, onClose }: MetadataModalPr
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
               <span style={{ fontSize: '12px', color: '#64748B' }}>Uploading…</span>
-              <span style={{ fontSize: '12px', color: '#818CF8', fontWeight: '600' }}>{progress}%</span>
+              <span style={{ fontSize: '12px', color: '#2563EB', fontWeight: '700' }}>{progress}%</span>
             </div>
-            <div style={{ height: '6px', background: '#1E293B', borderRadius: '99px', overflow: 'hidden' }}>
+            <div style={{ height: '6px', background: '#E2E8F0', borderRadius: '99px', overflow: 'hidden' }}>
               <div style={{
                 height: '100%',
                 width: `${progress}%`,
-                background: 'linear-gradient(90deg, #4F46E5, #818CF8)',
+                background: '#2563EB',
                 borderRadius: '99px',
                 transition: 'width 200ms ease',
               }} />
@@ -261,14 +281,15 @@ export function MetadataModal({ file, courseId, type, onClose }: MetadataModalPr
         {done && (
           <div style={{
             padding: '10px 14px',
-            background: 'rgba(16,185,129,0.1)',
-            border: '1px solid rgba(16,185,129,0.3)',
-            borderRadius: '9px',
-            color: '#6EE7B7',
+            background: '#ECFDF5',
+            border: '1px solid #A7F3D0',
+            borderRadius: '8px',
+            color: '#059669',
             fontSize: '13px',
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
+            fontWeight: '600',
           }}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M20 6L9 17l-5-5"/>
@@ -279,17 +300,18 @@ export function MetadataModal({ file, courseId, type, onClose }: MetadataModalPr
 
         {/* Actions */}
         {!done && (
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', paddingTop: '4px' }}>
+          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', paddingTop: '8px', borderTop: '1px solid #E2E8F0' }}>
             <button
               onClick={onClose}
               disabled={uploading}
               style={{
                 padding: '9px 18px',
-                background: 'transparent',
-                border: '1px solid #334155',
-                borderRadius: '9px',
-                color: '#64748B',
+                background: '#F8FAFC',
+                border: '1px solid #CBD5E1',
+                borderRadius: '8px',
+                color: '#475569',
                 fontSize: '14px',
+                fontWeight: '600',
                 cursor: uploading ? 'not-allowed' : 'pointer',
                 fontFamily: 'inherit',
               }}
@@ -299,19 +321,10 @@ export function MetadataModal({ file, courseId, type, onClose }: MetadataModalPr
             <button
               onClick={handleUpload}
               disabled={uploading}
+              className="btn-primary"
               style={{
                 padding: '9px 22px',
-                background: uploading ? 'rgba(79,70,229,0.5)' : '#4F46E5',
-                border: 'none',
-                borderRadius: '9px',
-                color: '#FFFFFF',
                 fontSize: '14px',
-                fontWeight: '600',
-                cursor: uploading ? 'not-allowed' : 'pointer',
-                fontFamily: 'inherit',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
               }}
             >
               {uploading ? (

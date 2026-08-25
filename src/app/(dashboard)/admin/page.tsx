@@ -16,22 +16,21 @@ interface StatCardProps {
   label: string
   value: number | string
   icon: React.ReactNode
-  gradientClass: string
+  iconBg: string
   iconColor: string
 }
 
-function StatCard({ label, value, icon, gradientClass, iconColor }: StatCardProps) {
+function StatCard({ label, value, icon, iconBg, iconColor }: StatCardProps) {
   return (
     <div
-      className={`glass-card ${gradientClass}`}
-      style={{ padding: '24px', display: 'flex', alignItems: 'flex-start', gap: '16px' }}
+      className="glass-card"
+      style={{ padding: '20px 22px', display: 'flex', alignItems: 'center', gap: '16px', background: '#FFFFFF' }}
     >
       <div style={{
-        width: '44px',
-        height: '44px',
+        width: '48px',
+        height: '48px',
         borderRadius: '12px',
-        background: 'rgba(255,255,255,0.05)',
-        border: '1px solid rgba(255,255,255,0.08)',
+        background: iconBg,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -41,7 +40,7 @@ function StatCard({ label, value, icon, gradientClass, iconColor }: StatCardProp
         {icon}
       </div>
       <div>
-        <div style={{ fontSize: '28px', fontWeight: '800', color: '#FFFFFF', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
+        <div style={{ fontSize: '26px', fontWeight: '800', color: '#0F172A', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
           {value}
         </div>
         <div style={{ fontSize: '13px', color: '#64748B', marginTop: '4px', fontWeight: '500' }}>
@@ -128,10 +127,10 @@ export default async function AdminDashboardPage() {
     {
       label: 'Total Courses',
       value: totalCourses,
-      gradientClass: 'stat-gradient-indigo',
-      iconColor: '#818CF8',
+      iconBg: '#EFF6FF',
+      iconColor: '#2563EB',
       icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
         </svg>
@@ -140,10 +139,10 @@ export default async function AdminDashboardPage() {
     {
       label: 'Total Students',
       value: totalStudents,
-      gradientClass: 'stat-gradient-emerald',
-      iconColor: '#34D399',
+      iconBg: '#ECFDF5',
+      iconColor: '#059669',
       icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
           <circle cx="9" cy="7" r="4" />
           <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
@@ -154,10 +153,10 @@ export default async function AdminDashboardPage() {
     {
       label: 'Pending Submissions',
       value: pendingSubmissions,
-      gradientClass: 'stat-gradient-amber',
-      iconColor: '#FCD34D',
+      iconBg: '#FFFBEB',
+      iconColor: '#D97706',
       icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
           <polyline points="14 2 14 8 20 8" />
           <line x1="12" y1="18" x2="12" y2="12" />
@@ -168,10 +167,10 @@ export default async function AdminDashboardPage() {
     {
       label: 'Submissions (7 days)',
       value: recentActivityCount,
-      gradientClass: 'stat-gradient-slate',
-      iconColor: '#94A3B8',
+      iconBg: '#F5F3FF',
+      iconColor: '#7C3AED',
       icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
         </svg>
       ),
@@ -181,18 +180,18 @@ export default async function AdminDashboardPage() {
   return (
     <div style={{ maxWidth: '1200px' }}>
       {/* Page header */}
-      <div style={{ marginBottom: '32px' }}>
+      <div style={{ marginBottom: '28px' }}>
         <h1 style={{
-          fontSize: '28px',
+          fontSize: '26px',
           fontWeight: '800',
-          color: '#FFFFFF',
+          color: '#0F172A',
           letterSpacing: '-0.02em',
           marginBottom: '6px',
         }}>
-          Dashboard
+          Lecturer Dashboard
         </h1>
         <p style={{ fontSize: '14px', color: '#64748B' }}>
-          Overview of your Academic Hub platform
+          Overview of your courses, enrolled students, and grading tasks
         </p>
       </div>
 

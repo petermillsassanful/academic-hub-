@@ -9,7 +9,7 @@ interface AppLayoutProps {
 
 export function AppLayout({ profile, children }: AppLayoutProps) {
   return (
-    <div style={{ minHeight: '100vh', background: '#0A0F1E' }}>
+    <div style={{ minHeight: '100vh', background: '#F4F6F9' }}>
       <Sidebar role={profile.role} />
       <TopBar profile={profile} />
 

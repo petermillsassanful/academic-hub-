@@ -19,72 +19,81 @@ export function CourseCard({ course, studentCount = 0, basePath = '/admin' }: Co
       <div
         className="glass-card"
         style={{
-          padding: '20px',
+          padding: '22px',
           cursor: 'pointer',
           transition: 'all 200ms ease',
-          borderColor: 'rgba(79,70,229,0.1)',
+          background: '#FFFFFF',
+          border: '1px solid #E2E8F0',
+          borderRadius: '12px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          minHeight: '160px',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
         }}
         onMouseEnter={(e) => {
           const el = e.currentTarget as HTMLDivElement
           el.style.transform = 'translateY(-2px)'
-          el.style.borderColor = 'rgba(79,70,229,0.35)'
-          el.style.boxShadow = '0 8px 32px rgba(79,70,229,0.15)'
+          el.style.borderColor = '#CBD5E1'
+          el.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.06)'
         }}
         onMouseLeave={(e) => {
           const el = e.currentTarget as HTMLDivElement
           el.style.transform = 'translateY(0)'
-          el.style.borderColor = 'rgba(79,70,229,0.1)'
-          el.style.boxShadow = ''
+          el.style.borderColor = '#E2E8F0'
+          el.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.03)'
         }}
       >
-        {/* Top row: code badge + semester */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-          <span style={{
-            display: 'inline-block',
-            padding: '3px 9px',
-            background: 'rgba(79,70,229,0.12)',
-            border: '1px solid rgba(79,70,229,0.25)',
-            borderRadius: '6px',
-            fontSize: '11px',
-            fontWeight: '700',
-            color: '#818CF8',
-            letterSpacing: '0.06em',
-            textTransform: 'uppercase',
+        <div>
+          {/* Top row: code badge + semester */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+            <span style={{
+              display: 'inline-block',
+              padding: '3px 8px',
+              background: '#EFF6FF',
+              border: '1px solid #BFDBFE',
+              borderRadius: '6px',
+              fontSize: '11px',
+              fontWeight: '700',
+              color: '#1D4ED8',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+            }}>
+              {course.code}
+            </span>
+            <span style={{ fontSize: '12px', color: '#475569', fontWeight: '600' }}>
+              {course.level ? `Level ${course.level} — ` : ''}{course.semester}
+            </span>
+          </div>
+
+          {/* Course name */}
+          <h3 style={{
+            fontSize: '16px',
+            fontWeight: '800',
+            color: '#0F172A',
+            marginBottom: '6px',
+            letterSpacing: '-0.01em',
+            lineHeight: 1.3,
           }}>
-            {course.code}
-          </span>
-          <span style={{ fontSize: '12px', color: '#475569', fontWeight: '500' }}>
-            {course.semester}
-          </span>
+            {course.name}
+          </h3>
+
+          {/* Description snippet */}
+          {course.description && (
+            <p style={{
+              fontSize: '13px',
+              color: '#64748B',
+              lineHeight: 1.5,
+              marginBottom: '14px',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+            }}>
+              {course.description}
+            </p>
+          )}
         </div>
-
-        {/* Course name */}
-        <h3 style={{
-          fontSize: '15px',
-          fontWeight: '700',
-          color: '#FFFFFF',
-          marginBottom: '6px',
-          letterSpacing: '-0.01em',
-          lineHeight: 1.3,
-        }}>
-          {course.name}
-        </h3>
-
-        {/* Description snippet */}
-        {course.description && (
-          <p style={{
-            fontSize: '13px',
-            color: '#64748B',
-            lineHeight: 1.5,
-            marginBottom: '14px',
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-          }}>
-            {course.description}
-          </p>
-        )}
 
         {/* Footer: students + arrow */}
         <div style={{
@@ -92,11 +101,11 @@ export function CourseCard({ course, studentCount = 0, basePath = '/admin' }: Co
           alignItems: 'center',
           justifyContent: 'space-between',
           paddingTop: '12px',
-          borderTop: '1px solid #1E293B',
-          marginTop: course.description ? 0 : '14px',
+          borderTop: '1px solid #F1F5F9',
+          marginTop: '12px',
         }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#475569' }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#475569', fontWeight: '600' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
               <circle cx="9" cy="7" r="4" />
               <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
@@ -104,7 +113,7 @@ export function CourseCard({ course, studentCount = 0, basePath = '/admin' }: Co
             </svg>
             {studentCount} student{studentCount !== 1 ? 's' : ''}
           </span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" strokeWidth="2">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2.5">
             <path d="M5 12h14M12 5l7 7-7 7" />
           </svg>
         </div>

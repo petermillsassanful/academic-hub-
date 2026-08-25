@@ -19,13 +19,13 @@ function isPastDeadline(deadline: string) {
 
 function StatusBadge({ status }: { status: ReturnType<typeof getStatus> }) {
   const map = {
-    not_submitted: { label: 'Not Submitted', bg: 'rgba(100,116,139,0.1)', border: '#334155', color: '#64748B' },
-    submitted:     { label: 'Submitted',     bg: 'rgba(79,70,229,0.1)',   border: 'rgba(79,70,229,0.3)',   color: '#818CF8' },
-    graded:        { label: 'Graded',        bg: 'rgba(16,185,129,0.1)',  border: 'rgba(16,185,129,0.25)', color: '#6EE7B7' },
+    not_submitted: { label: 'Not Submitted', bg: '#F1F5F9', border: '#CBD5E1', color: '#64748B' },
+    submitted:     { label: 'Submitted',     bg: '#EFF6FF', border: '#BFDBFE', color: '#1D4ED8' },
+    graded:        { label: 'Graded',        bg: '#ECFDF5', border: '#A7F3D0', color: '#059669' },
   }[status]
   return (
     <span style={{
-      padding: '3px 10px', borderRadius: '99px', fontSize: '11px', fontWeight: '700',
+      padding: '3px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: '700',
       background: map.bg, border: `1px solid ${map.border}`, color: map.color,
     }}>
       {map.label}
@@ -39,7 +39,7 @@ function DeadlineText({ deadline }: { deadline: string }) {
     day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
   })
   return (
-    <span style={{ fontSize: '12px', color: past ? '#FCA5A5' : '#64748B' }}>
+    <span style={{ fontSize: '12px', color: past ? '#DC2626' : '#64748B', fontWeight: past ? '600' : '400' }}>
       {past ? '⏰ Past due · ' : '📅 Due '}{formatted}
     </span>
   )
@@ -83,7 +83,6 @@ function SubmissionForm({ assignment, userId, existing, onSuccess }: SubmissionF
     try {
       let fileUrl: string | null = existing?.file_url ?? null
 
-      // Upload file if selected
       if (file) {
         const { data: { session } } = await supabase.auth.getSession()
         const token = session?.access_token
@@ -98,208 +97,179 @@ function SubmissionForm({ assignment, userId, existing, onSuccess }: SubmissionF
           xhr.upload.addEventListener('progress', (e) => {
             if (e.lengthComputable) setProgress(Math.min(90, Math.round((e.loaded / e.total) * 90)))
           })
-          xhr.addEventListener('load', () => {
-            if (xhr.status >= 200 && xhr.status < 300) { setProgress(100); resolve() }
-            else { try { reject(new Error(JSON.parse(xhr.responseText).message)) } catch { reject(new Error(`Upload failed (${xhr.status})`)) } }
-          })
-          xhr.addEventListener('error', () => reject(new Error('Network error')))
           xhr.open('POST', uploadUrl)
           xhr.setRequestHeader('Authorization', `Bearer ${token}`)
-          xhr.setRequestHeader('x-upsert', 'true')
-          xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream')
+          xhr.setRequestHeader('apikey', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              fileUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/submissions/${path}`
+              resolve()
+            } else {
+              reject(new Error(`Upload failed (${xhr.status})`))
+            }
+          }
+          xhr.onerror = () => reject(new Error('Network error during upload'))
           xhr.send(file)
         })
-
-        fileUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/submissions/${path}`
       }
 
-      const payload = {
-        file_url:       fileUrl,
-        written_answer: answer.trim() || null,
-        submitted_at:   new Date().toISOString(),
-      }
+      setProgress(95)
 
-      let dbErr
       if (existing) {
-        ;({ error: dbErr } = await supabase.from('submissions').update(payload as never).eq('id', existing.id))
+        await supabase
+          .from('submissions')
+          .update({
+            file_url: fileUrl,
+            written_answer: answer.trim() || null,
+            submitted_at: new Date().toISOString(),
+          } as never)
+          .eq('id', existing.id)
       } else {
-        ;({ error: dbErr } = await supabase.from('submissions').insert({
-          ...payload,
-          assignment_id: assignment.id,
-          student_id: userId,
-        } as never))
+        await supabase
+          .from('submissions')
+          .insert({
+            assignment_id: assignment.id,
+            student_id: userId,
+            file_url: fileUrl,
+            written_answer: answer.trim() || null,
+          } as never)
       }
 
-      if (dbErr) throw dbErr
+      setProgress(100)
       router.refresh()
       onSuccess()
     } catch (err: unknown) {
-      setError((err as { message?: string })?.message ?? 'Submission failed')
-      setProgress(0)
+      setError(err instanceof Error ? err.message : 'Submission failed')
     } finally {
       setUploading(false)
     }
   }
 
-  const inputStyle: React.CSSProperties = {
-    width: '100%', padding: '10px 12px',
-    background: 'rgba(255,255,255,0.04)',
-    border: '1px solid #334155', borderRadius: '9px',
-    color: '#FFFFFF', fontSize: '14px', fontFamily: 'inherit',
-    outline: 'none', boxSizing: 'border-box', transition: 'border-color 150ms',
-  }
-
-  if (!canSubmit && !existing) {
-    return (
-      <div style={{
-        padding: '20px', background: 'rgba(239,68,68,0.06)',
-        border: '1px solid rgba(239,68,68,0.2)', borderRadius: '10px',
-        textAlign: 'center',
-      }}>
-        <p style={{ fontSize: '14px', fontWeight: '600', color: '#FCA5A5' }}>⏰ Deadline has passed</p>
-        <p style={{ fontSize: '13px', color: '#64748B', marginTop: '4px' }}>This assignment is no longer accepting submissions.</p>
-      </div>
-    )
-  }
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-      {/* Existing submission preview */}
-      {existing && (
+    <div style={{
+      background: '#FFFFFF',
+      border: '1px solid #E2E8F0',
+      borderRadius: '12px',
+      padding: '24px',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+    }}>
+      <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#0F172A', marginBottom: '14px' }}>
+        {existing ? 'Your Submission' : 'Submit Assignment'}
+      </h3>
+
+      {isGraded && (
         <div style={{
-          padding: '14px', background: 'rgba(79,70,229,0.06)',
-          border: '1px solid rgba(79,70,229,0.2)', borderRadius: '10px',
+          padding: '14px 16px', background: '#ECFDF5', border: '1px solid #A7F3D0',
+          borderRadius: '8px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
-          <p style={{ fontSize: '12px', fontWeight: '700', color: '#818CF8', marginBottom: '8px' }}>
-            Your previous submission
-          </p>
-          {existing.file_url && (
-            <a href={existing.file_url} target="_blank" rel="noreferrer"
-              style={{ fontSize: '13px', color: '#818CF8', display: 'block', marginBottom: '4px' }}>
-              📎 View submitted file
-            </a>
-          )}
-          {existing.written_answer && (
-            <p style={{ fontSize: '13px', color: '#94A3B8', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
-              {existing.written_answer.slice(0, 200)}{existing.written_answer.length > 200 ? '…' : ''}
-            </p>
-          )}
+          <div>
+            <p style={{ fontSize: '13px', fontWeight: '700', color: '#065F46', margin: 0 }}>Graded Assignment</p>
+            {existing?.feedback && (
+              <p style={{ fontSize: '13px', color: '#047857', margin: '4px 0 0' }}>Feedback: {existing.feedback}</p>
+            )}
+          </div>
+          <span style={{ fontSize: '18px', fontWeight: '800', color: '#059669' }}>
+            {existing?.grade} / {assignment.max_score}
+          </span>
+        </div>
+      )}
+
+      {/* Existing file link */}
+      {existing?.file_url && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '8px',
+          padding: '10px 14px', background: '#F8FAFC', border: '1px solid #E2E8F0',
+          borderRadius: '8px', marginBottom: '16px',
+        }}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+          </svg>
+          <a
+            href={existing.file_url}
+            target="_blank"
+            rel="noreferrer"
+            style={{ fontSize: '13px', color: '#1D4ED8', fontWeight: '600', textDecoration: 'none' }}
+          >
+            Download Previously Submitted File ↗
+          </a>
         </div>
       )}
 
       {canSubmit && (
         <>
-          {/* File upload */}
-          <div>
-            <p style={{ fontSize: '13px', fontWeight: '500', color: '#94A3B8', marginBottom: '8px' }}>
-              Attach a file (optional)
-            </p>
+          {/* File Picker */}
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#334155', marginBottom: '6px' }}>
+              Upload Submission File (PDF, DOCX, ZIP, Code)
+            </label>
             <div
               onClick={() => fileRef.current?.click()}
               style={{
-                padding: '14px 16px',
-                border: `1px dashed ${file ? '#4F46E5' : '#334155'}`,
-                borderRadius: '10px',
-                background: file ? 'rgba(79,70,229,0.06)' : 'rgba(255,255,255,0.02)',
-                cursor: 'pointer', transition: 'all 150ms',
-                display: 'flex', alignItems: 'center', gap: '10px',
+                border: '2px dashed #CBD5E1', borderRadius: '8px', padding: '20px',
+                textAlign: 'center', cursor: 'pointer', background: '#F8FAFC',
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#4F46E5' }}
-              onMouseLeave={(e) => { if (!file) e.currentTarget.style.borderColor = '#334155' }}
             >
-              <input ref={fileRef} type="file" style={{ display: 'none' }} onChange={handleFilePick} />
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={file ? '#818CF8' : '#475569'} strokeWidth="1.8">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="17 8 12 3 7 8"/>
-                <line x1="12" y1="3" x2="12" y2="15"/>
-              </svg>
-              <span style={{ fontSize: '13px', color: file ? '#FFFFFF' : '#64748B' }}>
-                {file ? file.name : 'Click to choose a file'}
-              </span>
-              {file && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); setFile(null) }}
-                  style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#475569', cursor: 'pointer', fontSize: '18px' }}
-                >×</button>
-              )}
+              <input
+                ref={fileRef}
+                type="file"
+                onChange={handleFilePick}
+                style={{ display: 'none' }}
+              />
+              <p style={{ fontSize: '13px', fontWeight: '600', color: file ? '#1D4ED8' : '#0F172A', margin: 0 }}>
+                {file ? `Selected: ${file.name}` : 'Click to select submission file'}
+              </p>
             </div>
           </div>
 
-          {/* Written answer */}
-          <div>
-            <p style={{ fontSize: '13px', fontWeight: '500', color: '#94A3B8', marginBottom: '8px' }}>
-              Written answer (optional)
-            </p>
+          {/* Written text answer */}
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#334155', marginBottom: '6px' }}>
+              Written Answer / Notes (Optional)
+            </label>
             <textarea
+              className="form-input"
+              rows={4}
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
-              placeholder="Type your answer here…"
-              rows={5}
-              style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.6 }}
-              onFocus={(e) => { e.currentTarget.style.borderColor = '#4F46E5' }}
-              onBlur={(e) => { e.currentTarget.style.borderColor = '#334155' }}
+              placeholder="Write or paste your answer notes here..."
+              style={{ resize: 'vertical' }}
             />
           </div>
 
-          {/* Progress bar */}
-          {uploading && file && (
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                <span style={{ fontSize: '12px', color: '#64748B' }}>Uploading…</span>
-                <span style={{ fontSize: '12px', color: '#818CF8', fontWeight: '600' }}>{progress}%</span>
-              </div>
-              <div style={{ height: '5px', background: '#1E293B', borderRadius: '99px', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${progress}%`, background: 'linear-gradient(90deg,#4F46E5,#818CF8)', borderRadius: '99px', transition: 'width 200ms' }} />
-              </div>
-            </div>
-          )}
-
           {error && (
-            <div style={{ padding: '10px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '9px', color: '#FCA5A5', fontSize: '13px' }}>
+            <div style={{ padding: '10px 14px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '6px', color: '#DC2626', fontSize: '13px', marginBottom: '16px' }}>
               {error}
             </div>
           )}
 
+          {uploading && (
+            <div style={{ marginBottom: '16px' }}>
+              <div style={{ height: '6px', background: '#E2E8F0', borderRadius: '99px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${progress}%`, background: '#2563EB', transition: 'width 200ms ease' }} />
+              </div>
+            </div>
+          )}
+
           <button
+            type="button"
             onClick={handleSubmit}
             disabled={uploading}
-            style={{
-              padding: '11px 24px',
-              background: uploading ? 'rgba(79,70,229,0.5)' : '#4F46E5',
-              border: 'none', borderRadius: '9px', color: '#FFFFFF',
-              fontSize: '14px', fontWeight: '700', cursor: uploading ? 'not-allowed' : 'pointer',
-              fontFamily: 'inherit', alignSelf: 'flex-start',
-            }}
+            className="btn-primary"
+            style={{ width: '100%', padding: '10px 20px', fontSize: '14px' }}
           >
-            {uploading ? 'Submitting…' : existing ? '↻ Re-submit' : '→ Submit'}
+            {uploading ? `Submitting (${progress}%)…` : existing ? 'Update Submission' : 'Turn In Assignment'}
           </button>
         </>
-      )}
-
-      {/* If graded, show result */}
-      {isGraded && (
-        <div style={{
-          padding: '16px', background: 'rgba(16,185,129,0.06)',
-          border: '1px solid rgba(16,185,129,0.2)', borderRadius: '10px',
-        }}>
-          <p style={{ fontSize: '12px', fontWeight: '700', color: '#6EE7B7', marginBottom: '6px' }}>✓ Graded</p>
-          <p style={{ fontSize: '22px', fontWeight: '800', color: '#FFFFFF' }}>
-            {existing!.grade} <span style={{ fontSize: '14px', color: '#475569', fontWeight: '400' }}>/ {assignment.max_score}</span>
-          </p>
-          {existing!.feedback && (
-            <p style={{ fontSize: '13px', color: '#94A3B8', marginTop: '8px', lineHeight: 1.7 }}>{existing!.feedback}</p>
-          )}
-        </div>
       )}
     </div>
   )
 }
 
-// ── Main component ────────────────────────────────────────────────────────────
+// ── List & Main view ─────────────────────────────────────────────────────────
 
 interface StudentAssignmentsTabProps {
   assignments: Assignment[]
-  submissions: Submission[]            // student's own
+  submissions: Submission[]
   selectedAssignment?: Assignment
   courseId: string
   userId: string
@@ -311,7 +281,6 @@ export function StudentAssignmentsTab({
   const router = useRouter()
   const subMap = new Map(submissions.map((s) => [s.assignment_id, s]))
 
-  // ── Detail view ───────────────────────────────────────────────────────────────
   if (selectedAssignment) {
     const existing = subMap.get(selectedAssignment.id)
     const status   = getStatus(selectedAssignment, existing)
@@ -322,39 +291,35 @@ export function StudentAssignmentsTab({
           onClick={() => router.push('?tab=assignments')}
           style={{
             display: 'inline-flex', alignItems: 'center', gap: '6px',
-            background: 'transparent', border: 'none', color: '#64748B',
-            fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit',
+            background: 'transparent', border: 'none', color: '#1B2559',
+            fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit',
             marginBottom: '16px', padding: 0,
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = '#94A3B8' }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = '#64748B' }}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M19 12H5M12 5l-7 7 7 7"/>
-          </svg>
-          Back to assignments
+          ← Back to Assignments
         </button>
 
-        {/* Assignment header */}
+        {/* Assignment header card */}
         <div style={{
-          padding: '20px 24px', background: 'rgba(255,255,255,0.02)',
-          border: '1px solid #1E293B', borderRadius: '12px', marginBottom: '20px',
+          padding: '24px', background: '#FFFFFF',
+          border: '1px solid #E2E8F0', borderRadius: '12px', marginBottom: '20px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
         }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '10px' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: '800', color: '#FFFFFF', lineHeight: 1.3 }}>
+            <h2 style={{ fontSize: '20px', fontWeight: '800', color: '#0F172A', lineHeight: 1.3 }}>
               {selectedAssignment.title}
             </h2>
             <StatusBadge status={status} />
           </div>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: selectedAssignment.instructions ? '12px' : '0' }}>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: selectedAssignment.instructions ? '14px' : '0' }}>
             <DeadlineText deadline={selectedAssignment.deadline} />
-            <span style={{ fontSize: '12px', color: '#475569' }}>· Max {selectedAssignment.max_score} pts</span>
+            <span style={{ fontSize: '12px', color: '#64748B' }}>· Max {selectedAssignment.max_score} pts</span>
           </div>
           {selectedAssignment.instructions && (
             <div style={{
-              padding: '12px', background: 'rgba(255,255,255,0.02)',
-              border: '1px solid #1E293B', borderRadius: '8px',
-              fontSize: '13px', color: '#94A3B8', lineHeight: 1.7, whiteSpace: 'pre-wrap',
+              padding: '14px 16px', background: '#F8FAFC',
+              border: '1px solid #E2E8F0', borderRadius: '8px',
+              fontSize: '13px', color: '#334155', lineHeight: 1.6, whiteSpace: 'pre-wrap',
             }}>
               {selectedAssignment.instructions}
             </div>
@@ -372,17 +337,26 @@ export function StudentAssignmentsTab({
     )
   }
 
-  // ── List view ─────────────────────────────────────────────────────────────────
   if (assignments.length === 0) {
     return (
       <div style={{
-        padding: '50px 30px', textAlign: 'center',
-        background: 'rgba(255,255,255,0.02)',
-        border: '1px dashed #1E293B', borderRadius: '12px',
+        padding: '48px 30px', textAlign: 'center',
+        background: '#FFFFFF',
+        border: '1px solid #E2E8F0', borderRadius: '12px',
         animation: 'tabFadeIn 200ms ease',
       }}>
-        <p style={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFF', marginBottom: '6px' }}>No assignments yet</p>
-        <p style={{ fontSize: '13px', color: '#475569' }}>Your lecturer hasn&apos;t posted any assignments yet.</p>
+        <div style={{
+          width: '48px', height: '48px', margin: '0 auto 12px',
+          background: '#EFF6FF', borderRadius: '12px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
+            <path d="M9 11l3 3L22 4"/>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+        </div>
+        <p style={{ fontSize: '15px', fontWeight: '700', color: '#0F172A', marginBottom: '4px' }}>No assignments yet</p>
+        <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>Your lecturer hasn&apos;t posted any assignments yet.</p>
       </div>
     )
   }
@@ -400,23 +374,24 @@ export function StudentAssignmentsTab({
             onClick={() => router.push(`?tab=assignments&assignment=${a.id}`)}
             style={{
               padding: '16px 20px',
-              background: 'rgba(255,255,255,0.02)',
-              border: '1px solid #1E293B', borderRadius: '12px',
-              cursor: 'pointer', transition: 'border-color 150ms',
+              background: '#FFFFFF',
+              border: '1px solid #E2E8F0', borderRadius: '10px',
+              cursor: 'pointer', transition: 'all 150ms ease',
               display: 'flex', alignItems: 'center', gap: '14px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#4F46E5' }}
-            onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#1E293B' }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.03)' }}
           >
             <div style={{
-              width: '36px', height: '36px', flexShrink: 0,
-              background: status === 'graded' ? 'rgba(16,185,129,0.1)' : status === 'submitted' ? 'rgba(79,70,229,0.1)' : 'rgba(100,116,139,0.1)',
-              border: `1px solid ${status === 'graded' ? 'rgba(16,185,129,0.25)' : status === 'submitted' ? 'rgba(79,70,229,0.25)' : '#334155'}`,
-              borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              width: '38px', height: '38px', flexShrink: 0,
+              background: status === 'graded' ? '#ECFDF5' : status === 'submitted' ? '#EFF6FF' : '#F1F5F9',
+              border: `1px solid ${status === 'graded' ? '#A7F3D0' : status === 'submitted' ? '#BFDBFE' : '#CBD5E1'}`,
+              borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                stroke={status === 'graded' ? '#6EE7B7' : status === 'submitted' ? '#818CF8' : '#64748B'}
-                strokeWidth="1.8">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke={status === 'graded' ? '#059669' : status === 'submitted' ? '#1D4ED8' : '#64748B'}
+                strokeWidth="2">
                 {status === 'graded'
                   ? <path d="M20 6L9 17l-5-5"/>
                   : <><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></>
@@ -425,14 +400,14 @@ export function StudentAssignmentsTab({
             </div>
 
             <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontSize: '14px', fontWeight: '700', color: '#FFFFFF', marginBottom: '5px' }}>{a.title}</p>
+              <p style={{ fontSize: '15px', fontWeight: '700', color: '#0F172A', marginBottom: '3px' }}>{a.title}</p>
               <DeadlineText deadline={a.deadline} />
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <StatusBadge status={status} />
               {!past && status === 'not_submitted' && (
-                <span style={{ fontSize: '12px', color: '#4F46E5', fontWeight: '600' }}>Submit →</span>
+                <span style={{ fontSize: '13px', color: '#2563EB', fontWeight: '700' }}>Submit ➜</span>
               )}
             </div>
           </div>
