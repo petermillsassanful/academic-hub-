@@ -61,22 +61,28 @@ export default async function AdminDashboardPage() {
 
   const supabase = await createClient()
 
-  // Fetch courses (needed before we can compute stats)
-  const { data: coursesData } = await supabase
-    .from('courses')
-    .select('*')
-    .eq('created_by', user.id)
-    .order('created_at', { ascending: false })
+  // 1. Fetch courses and assignments in parallel
+  const [coursesRes, assignmentsRes] = await Promise.all([
+    supabase
+      .from('courses')
+      .select('*')
+      .eq('created_by', user.id)
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('assignments')
+      .select('id, course_id, courses!inner(created_by)')
+      .eq('courses.created_by', user.id),
+  ])
 
-  const courses: Course[] = (coursesData as Course[]) ?? []
+  const courses: Course[] = (coursesRes.data as Course[]) ?? []
   const totalCourses = courses.length
-
-  // Run student count + pending submissions in parallel
   const courseLevels = [...new Set(courses.map((c) => c.level))]
-  const courseIds = courses.map((c) => c.id)
+  const assignIds = (assignmentsRes.data ?? []).map((a: { id: string }) => a.id)
 
-  const [totalStudents, pendingSubmissions] = await Promise.all([
-    // Count students across all course levels
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+
+  // 2. Fetch student count, pending submissions, and recent activity in parallel
+  const [totalStudents, pendingSubmissions, recentActivityCount] = await Promise.all([
     courseLevels.length > 0
       ? supabase
           .from('profiles')
@@ -85,43 +91,23 @@ export default async function AdminDashboardPage() {
           .in('level', courseLevels)
           .then(({ count }) => count ?? 0)
       : Promise.resolve(0),
-    // Count ungraded submissions
-    courseIds.length > 0
+    assignIds.length > 0
       ? supabase
-          .from('assignments')
-          .select('id')
-          .in('course_id', courseIds)
-          .then(({ data: assignData }) => {
-            const assignIds = (assignData ?? []).map((a: { id: string }) => a.id)
-            if (assignIds.length === 0) return 0
-            return supabase
-              .from('submissions')
-              .select('*', { count: 'exact', head: true })
-              .in('assignment_id', assignIds)
-              .is('grade', null)
-              .then(({ count }) => count ?? 0)
-          })
+          .from('submissions')
+          .select('*', { count: 'exact', head: true })
+          .in('assignment_id', assignIds)
+          .is('grade', null)
+          .then(({ count }) => count ?? 0)
+      : Promise.resolve(0),
+    assignIds.length > 0
+      ? supabase
+          .from('submissions')
+          .select('*', { count: 'exact', head: true })
+          .in('assignment_id', assignIds)
+          .gte('submitted_at', sevenDaysAgo)
+          .then(({ count }) => count ?? 0)
       : Promise.resolve(0),
   ])
-
-  // Count submissions across this admin's courses in the last 7 days
-  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
-  let recentActivityCount = 0
-  if (courseIds.length > 0) {
-    const { data: recentAssignIds } = await supabase
-      .from('assignments')
-      .select('id')
-      .in('course_id', courseIds)
-    const recentIds = (recentAssignIds ?? []).map((a: { id: string }) => a.id)
-    if (recentIds.length > 0) {
-      const { count } = await supabase
-        .from('submissions')
-        .select('*', { count: 'exact', head: true })
-        .in('assignment_id', recentIds)
-        .gte('submitted_at', sevenDaysAgo)
-      recentActivityCount = count ?? 0
-    }
-  }
 
   const stats: StatCardProps[] = [
     {

@@ -109,8 +109,12 @@ export function NotificationBell({ userId }: NotificationBellProps) {
   useEffect(() => {
     loadNotifications()
 
-    // Poll every 20 seconds for new notifications
-    const interval = setInterval(loadNotifications, 20000)
+    // Poll every 30 seconds only when tab is active/visible
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        loadNotifications()
+      }
+    }, 30000)
 
     // Handle outside clicks to close popup
     function handleClickOutside(e: MouseEvent) {

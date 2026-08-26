@@ -42,6 +42,7 @@ export function StudentCourseClient({
   grades,
   userId,
 }: StudentCourseClientProps) {
+  const [currentTab, setCurrentTab] = useState(activeTab)
   const [activeQuizForTest, setActiveQuizForTest] = useState<QuizWithDetails | null>(null)
   const [activeQuizAttempt, setActiveQuizAttempt] = useState<QuizAttempt | undefined>(undefined)
 
@@ -126,11 +127,11 @@ export function StudentCourseClient({
             )}
           </div>
 
-          <CourseTabBar role="student" activeTab={activeTab} />
+          <CourseTabBar role="student" activeTab={currentTab} onTabChange={setCurrentTab} />
 
-          {activeTab === 'materials' && <MaterialsTab materials={materials} />}
-          {activeTab === 'lectures' && <LecturesTab recordings={recordings} />}
-          {activeTab === 'assignments' && (
+          {currentTab === 'materials' && <MaterialsTab materials={materials} />}
+          {currentTab === 'lectures' && <LecturesTab recordings={recordings} />}
+          {currentTab === 'assignments' && (
             <StudentAssignmentsTab
               assignments={assignments}
               submissions={submissions}
@@ -139,7 +140,7 @@ export function StudentCourseClient({
               userId={userId}
             />
           )}
-          {activeTab === 'quizzes' && (
+          {currentTab === 'quizzes' && (
             <StudentQuizzesTab
               quizzes={quizzes}
               attempts={attempts}
@@ -151,7 +152,7 @@ export function StudentCourseClient({
               }}
             />
           )}
-          {activeTab === 'grades' && (
+          {currentTab === 'grades' && (
             <GradesTab
               grades={grades}
               quizGrades={attempts.filter((a) => a.submitted_at !== null).map((a) => {

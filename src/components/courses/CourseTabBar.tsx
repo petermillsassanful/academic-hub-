@@ -43,14 +43,14 @@ const ADMIN_TABS: Tab[] = [
 
 const STUDENT_TABS: Tab[] = [
   {
-    id: 'lectures',
-    label: 'Lectures',
-    icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>,
-  },
-  {
     id: 'materials',
     label: 'Materials',
     icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>,
+  },
+  {
+    id: 'lectures',
+    label: 'Lectures',
+    icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>,
   },
   {
     id: 'assignments',
@@ -72,9 +72,10 @@ const STUDENT_TABS: Tab[] = [
 interface CourseTabBarProps {
   role: 'admin' | 'student'
   activeTab: string
+  onTabChange?: (tab: string) => void
 }
 
-export function CourseTabBar({ role, activeTab }: CourseTabBarProps) {
+export function CourseTabBar({ role, activeTab, onTabChange }: CourseTabBarProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -83,10 +84,21 @@ export function CourseTabBar({ role, activeTab }: CourseTabBarProps) {
   const searchParamsStr = searchParams.toString()
 
   const setTab = useCallback((tabId: string) => {
+    if (onTabChange) {
+      onTabChange(tabId)
+      // Update browser URL without triggering a full page re-render / network request
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search)
+        params.set('tab', tabId)
+        window.history.replaceState(null, '', `${pathname}?${params.toString()}`)
+      }
+      return
+    }
+
     const params = new URLSearchParams(searchParamsStr)
     params.set('tab', tabId)
     router.push(`${pathname}?${params.toString()}`)
-  }, [router, pathname, searchParamsStr])
+  }, [onTabChange, router, pathname, searchParamsStr])
 
   return (
     <>
@@ -109,7 +121,7 @@ export function CourseTabBar({ role, activeTab }: CourseTabBarProps) {
                 alignItems: 'center',
                 gap: '7px',
                 padding: '10px 18px',
-                minHeight: '44px',   /* 44px tap target */
+                minHeight: '44px',
                 background: 'transparent',
                 border: 'none',
                 borderBottom: isActive ? '3px solid #1B2559' : '3px solid transparent',

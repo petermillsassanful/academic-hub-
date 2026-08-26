@@ -4,20 +4,53 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { CourseFormModal } from '@/components/ui/CourseFormModal'
 import { DeleteConfirmDialog } from '@/components/ui/DeleteConfirmDialog'
-import type { Course } from '@/types/database'
+import { CourseTabBar } from '@/components/courses/CourseTabBar'
+import { ContentTab } from './tabs/ContentTab'
+import { RecordingsTab } from './tabs/RecordingsTab'
+import { AssignmentsTab, type AssignmentWithCount } from './tabs/AssignmentsTab'
+import { StudentsTab } from './tabs/StudentsTab'
+import { AnalyticsTab } from './tabs/AnalyticsTab'
+import { QuizzesTab, type QuizWithStats } from './tabs/QuizzesTab'
+import { type SubmissionWithProfile } from './tabs/GradingPanel'
+import type { Course, CourseMaterial, CourseRecording, Assignment, Submission, Profile } from '@/types/database'
 
 interface CoursePageClientProps {
   course: Course
   userId: string
   studentCount: number
+  activeTab: string
+  materials: CourseMaterial[]
+  recordings: CourseRecording[]
+  assignments: AssignmentWithCount[]
+  selectedAssignment?: Assignment
+  submissions: SubmissionWithProfile[]
+  quizzes: QuizWithStats[]
+  students: Profile[]
+  allAssignments: Assignment[]
+  allSubmissions: Submission[]
 }
 
-export function CoursePageClient({ course, userId, studentCount }: CoursePageClientProps) {
+export function CoursePageClient({
+  course,
+  userId,
+  studentCount,
+  activeTab,
+  materials,
+  recordings,
+  assignments,
+  selectedAssignment,
+  submissions,
+  quizzes,
+  students,
+  allAssignments,
+  allSubmissions,
+}: CoursePageClientProps) {
+  const [currentTab, setCurrentTab] = useState(activeTab)
   const [editOpen, setEditOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
 
   return (
-    <>
+    <div style={{ maxWidth: '1100px' }}>
       {/* Back link */}
       <Link
         href="/admin"
@@ -189,6 +222,41 @@ export function CoursePageClient({ course, userId, studentCount }: CoursePageCli
         </p>
       </div>
 
+      {/* Tabs */}
+      <CourseTabBar role="admin" activeTab={currentTab} onTabChange={setCurrentTab} />
+
+      {currentTab === 'content' && <ContentTab courseId={course.id} materials={materials} />}
+      {currentTab === 'recordings' && <RecordingsTab courseId={course.id} recordings={recordings} />}
+      {currentTab === 'assignments' && (
+        <AssignmentsTab
+          courseId={course.id}
+          assignments={assignments}
+          selectedAssignment={selectedAssignment}
+          submissions={submissions}
+        />
+      )}
+      {currentTab === 'quizzes' && (
+        <QuizzesTab
+          courseId={course.id}
+          quizzes={quizzes}
+        />
+      )}
+      {currentTab === 'students' && (
+        <StudentsTab
+          students={students}
+          assignments={allAssignments}
+          submissions={allSubmissions}
+          courseName={course.name}
+        />
+      )}
+      {currentTab === 'analytics' && (
+        <AnalyticsTab
+          students={students}
+          assignments={allAssignments}
+          submissions={allSubmissions}
+        />
+      )}
+
       {/* Modals */}
       <CourseFormModal
         isOpen={editOpen}
@@ -203,6 +271,6 @@ export function CoursePageClient({ course, userId, studentCount }: CoursePageCli
         courseName={course.name}
         courseCode={course.code}
       />
-    </>
+    </div>
   )
 }
