@@ -40,7 +40,7 @@ export default function AuthLayout({
             width: '100vw',
             height: '100vh',
             objectFit: 'cover',
-            objectPosition: 'center center',
+            objectPosition: 'center 40%',
             zIndex: 0,
             pointerEvents: 'none',
           }}
