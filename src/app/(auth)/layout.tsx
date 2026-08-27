@@ -7,44 +7,80 @@ export default function AuthLayout({
 }) {
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center relative overflow-x-hidden"
       style={{
-        backgroundImage: "url('/campus-bg.jpg')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundAttachment: 'fixed',
-        backgroundColor: '#0F172A',
+        minHeight: '100vh',
+        width: '100vw',
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
       }}
     >
-      {/* Cinematic Dark Gradient & Subtle Vignette Overlay */}
+      {/* Full-bleed campus background — object-fit:cover always fills edge-to-edge */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/campus-bg.jpg"
+        alt=""
+        aria-hidden="true"
+        style={{
+          position: 'fixed',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          objectPosition: 'center',
+          zIndex: 0,
+          pointerEvents: 'none',
+          userSelect: 'none',
+        }}
+      />
+
+      {/* Cinematic Dark Gradient & Vignette Overlay */}
       <div
         aria-hidden="true"
         style={{
           position: 'fixed',
           inset: 0,
-          background: 'radial-gradient(ellipse at center, rgba(15, 23, 42, 0.45) 0%, rgba(15, 23, 42, 0.82) 100%), linear-gradient(180deg, rgba(27, 37, 89, 0.5) 0%, rgba(15, 23, 42, 0.75) 100%)',
-          backdropFilter: 'blur(1.5px)',
-          WebkitBackdropFilter: 'blur(1.5px)',
+          background: [
+            'radial-gradient(ellipse at center, rgba(15, 23, 42, 0.40) 0%, rgba(15, 23, 42, 0.80) 100%)',
+            'linear-gradient(180deg, rgba(27, 37, 89, 0.45) 0%, rgba(15, 23, 42, 0.72) 100%)',
+          ].join(', '),
+          backdropFilter: 'blur(1px)',
+          WebkitBackdropFilter: 'blur(1px)',
           zIndex: 1,
           pointerEvents: 'none',
         }}
       />
 
-      <div className="relative z-10 w-full max-w-md px-4 py-10 flex flex-col items-center">
+      {/* Content */}
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 10,
+          width: '100%',
+          maxWidth: '448px',
+          padding: '40px 16px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
         {/* Academic Hub Branding */}
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center gap-3 mb-2.5">
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
             <div style={{
               width: '46px',
               height: '46px',
-              background: 'rgba(255, 255, 255, 0.96)',
+              background: 'rgba(255, 255, 255, 0.97)',
               backdropFilter: 'blur(10px)',
               borderRadius: '12px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               boxShadow: '0 8px 24px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.4)',
+              flexShrink: 0,
             }}>
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 3L20 7.5V16.5L12 21L4 16.5V7.5L12 3Z" stroke="#1B2559" strokeWidth="2.2" strokeLinejoin="round"/>
@@ -62,7 +98,7 @@ export default function AuthLayout({
             </span>
           </div>
           <p style={{
-            color: 'rgba(241, 245, 249, 0.95)',
+            color: 'rgba(241, 245, 249, 0.92)',
             fontSize: '13.5px',
             fontWeight: '500',
             margin: 0,
