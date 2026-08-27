@@ -108,7 +108,9 @@ export default function LoginPage() {
       className="glass-card"
       style={{
         padding: '32px',
-        background: 'transparent',
+        background: '#FFFFFF',
+        borderRadius: '16px',
+        boxShadow: '0 32px 64px rgba(0, 0, 0, 0.45), 0 8px 24px rgba(0, 0, 0, 0.25)',
         animation: 'fadeInUp 0.4s ease forwards',
       }}
     >
